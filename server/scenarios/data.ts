@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { AuthorizationContext } from "@/server/auth/context";
 import { createSupabaseServerClient } from "@/server/supabase/server";
 import { scenarioInputSchema } from "@/domain/scenario/schema";
-import { scenarioAssumptionAnalysisSchema } from "@/domain/ai/assumption-analysis";
+import { assumptionAnalysisEngineSchema, scenarioAssumptionAnalysisSchema } from "@/domain/ai/assumption-analysis";
 import type {
   DecisionRecord,
   EvidenceRecord,
@@ -61,7 +61,7 @@ const notificationRowSchema = z.object({
 });
 const aiAnalysisRowSchema = z.object({
   id: z.string(), scenario_id: z.string(), snapshot_id: z.string().nullable(), input_text: z.string(),
-  analysis: scenarioAssumptionAnalysisSchema, engine: z.enum(["local_rules", "openai"]),
+  analysis: scenarioAssumptionAnalysisSchema, engine: assumptionAnalysisEngineSchema,
   model: z.string().nullable(), created_at: z.string(),
 });
 

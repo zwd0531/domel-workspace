@@ -13,6 +13,7 @@ const requiredMigrations = [
   "0007_admin_import_console.sql",
   "0008_scenario_ai_analysis.sql",
   "0009_intelligence_research_agent.sql",
+  "0010_deepseek_scenario_analysis.sql",
 ];
 
 const failures = [];

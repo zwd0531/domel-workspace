@@ -80,7 +80,7 @@ This directory is the formal project foundation for the existing offline Feature
 - English and Chinese local parsing for demand, price, variable cost, fixed cost, capacity and capex statements;
 - completeness score, confidence, strengths, concerns, missing information and suggested wording;
 - recognized percentage changes can be applied to editable scenario fields before saving;
-- optional OpenAI Responses API integration using strict Structured Outputs;
+- DeepSeek JSON analysis using the same server-only provider configuration as Industry Intelligence;
 - automatic fallback to the local analyzer when no API key is configured or the provider is unavailable;
 - simple database history linked to saved scenarios and snapshots.
 
@@ -146,4 +146,4 @@ Open `/api/health` to verify the running service and formula version.
 
 ## Next implementation slice
 
-Configure the simple Supabase environment, apply migrations `0001` through `0009`, seed demonstration data and run the first authenticated end-to-end UAT path.
+Configure the simple Supabase environment, apply migrations `0001` through `0010`, seed demonstration data and run the first authenticated end-to-end UAT path.

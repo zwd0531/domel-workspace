@@ -3,18 +3,21 @@ import "server-only";
 import {
   analyzeAssumptionsLocally,
   scenarioAssumptionAnalysisSchema,
+  type AssumptionAnalysisEngine,
   type AssumptionAnalysisRequest,
   type ScenarioAssumptionAnalysis,
 } from "@/domain/ai/assumption-analysis";
 
 export type AnalysisRun = {
   analysis: ScenarioAssumptionAnalysis;
-  engine: "openai" | "local_rules";
+  engine: Exclude<AssumptionAnalysisEngine, "openai">;
   model: string | null;
   fallbackReason: string | null;
 };
 
-const OPENAI_SCHEMA = {
+const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
+
+const DEEPSEEK_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -60,37 +63,44 @@ const OPENAI_SCHEMA = {
 } as const;
 
 export async function analyzeScenarioAssumptions(request: AssumptionAnalysisRequest): Promise<AnalysisRun> {
-  const key = process.env.OPENAI_API_KEY?.trim();
+  const key = process.env.DEEPSEEK_API_KEY?.trim();
   if (!key) return { analysis: analyzeAssumptionsLocally(request.text), engine: "local_rules", model: null, fallbackReason: null };
 
-  const model = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
+  const model = process.env.DEEPSEEK_MODEL?.trim() || "deepseek-flash";
   try {
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model,
-        store: false,
-        max_output_tokens: 1_800,
-        instructions: "You analyze business scenario assumptions. Separate explicit statements from inference, never invent evidence, map only supported numeric changes, and return concise decision-oriented JSON. Scores measure completeness and testability, not whether the prediction is true.",
-        input: JSON.stringify({ assumptionText: request.text, currentScenarioInputs: request.inputs }),
-        text: { format: { type: "json_schema", name: "scenario_assumption_analysis", strict: true, schema: OPENAI_SCHEMA } },
+        thinking: { type: "disabled" },
+        max_tokens: 1_800,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: `You analyze business scenario assumptions. Return JSON only and match the supplied JSON Schema exactly. Separate explicit statements from inference, never invent evidence, map only supported numeric changes, and keep the result concise and decision-oriented. Scores measure completeness and testability, not whether the prediction is true. JSON Schema: ${JSON.stringify(DEEPSEEK_SCHEMA)}`,
+          },
+          {
+            role: "user",
+            content: JSON.stringify({ assumptionText: request.text, currentScenarioInputs: request.inputs }),
+          },
+        ],
       }),
       signal: AbortSignal.timeout(35_000),
     });
-    if (!response.ok) throw new Error(`OpenAI request returned ${response.status}.`);
-    const payload = await response.json() as OpenAiResponse;
-    if (payload.status !== "completed") throw new Error("OpenAI response was incomplete.");
-    const outputText = payload.output?.flatMap((item) => item.content ?? []).find((item) => item.type === "output_text")?.text;
-    if (!outputText) throw new Error("OpenAI response contained no structured output.");
-    const analysis = scenarioAssumptionAnalysisSchema.parse(JSON.parse(outputText));
-    return { analysis, engine: "openai", model, fallbackReason: null };
+    if (!response.ok) throw new Error(`DeepSeek request returned ${response.status}.`);
+    const payload = await response.json() as DeepSeekResponse;
+    const outputText = payload.choices?.[0]?.message?.content;
+    if (!outputText) throw new Error("DeepSeek response contained no structured output.");
+    const analysis = scenarioAssumptionAnalysisSchema.parse(JSON.parse(stripCodeFence(outputText)));
+    return { analysis, engine: "deepseek", model, fallbackReason: null };
   } catch {
     return {
       analysis: analyzeAssumptionsLocally(request.text),
       engine: "local_rules",
       model: null,
-      fallbackReason: "The configured AI service was unavailable, so the local demonstration analyzer was used.",
+      fallbackReason: "DeepSeek was unavailable or returned an invalid analysis, so the local analyzer was used.",
     };
   }
 }
@@ -99,7 +109,10 @@ function nullableNumber(minimum: number, maximum: number) {
   return { anyOf: [{ type: "number", minimum, maximum }, { type: "null" }] } as const;
 }
 
-type OpenAiResponse = {
-  status?: string;
-  output?: Array<{ content?: Array<{ type?: string; text?: string }> }>;
+function stripCodeFence(value: string) {
+  return value.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+}
+
+type DeepSeekResponse = {
+  choices?: Array<{ message?: { content?: string | null } }>;
 };

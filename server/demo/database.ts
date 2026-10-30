@@ -8,7 +8,7 @@ import { calculateScenario } from "@/domain/scenario/calculate";
 import type { DashboardData, DashboardProduct, DashboardRole, DashboardRow, WorkItem } from "@/domain/dashboard/types";
 import type { IntelligenceData, IntelligenceEvidence } from "@/domain/intelligence/types";
 import type { AdminWorkspaceData } from "@/domain/admin/types";
-import type { AssumptionAnalysisRequest, ScenarioAssumptionAnalysis } from "@/domain/ai/assumption-analysis";
+import type { AssumptionAnalysisEngine, AssumptionAnalysisRequest, ScenarioAssumptionAnalysis } from "@/domain/ai/assumption-analysis";
 import type { AppRole } from "@/domain/permissions/policy";
 import type { ScenarioInputs } from "@/domain/scenario/types";
 import type { ScenarioWorkspaceData } from "@/domain/scenario/workspace";
@@ -214,7 +214,7 @@ export function saveDemoScenario(input: { scenarioId?: string | null; productId:
   return { scenarioId, snapshotId, version, result };
 }
 
-export function saveDemoAiAnalysis(request: AssumptionAnalysisRequest, analysis: ScenarioAssumptionAnalysis, engine: "openai" | "local_rules", model: string | null) {
+export function saveDemoAiAnalysis(request: AssumptionAnalysisRequest, analysis: ScenarioAssumptionAnalysis, engine: AssumptionAnalysisEngine, model: string | null) {
   if (!request.scenarioId) return false;
   getDatabase().prepare("insert into ai_analyses values (?, ?, ?, ?, ?, ?, ?, ?)").run(randomUUID(), request.scenarioId, request.snapshotId ?? null, request.text, JSON.stringify(analysis), engine, model, new Date().toISOString());
   return true;
@@ -248,4 +248,4 @@ type WorkItemRow = { id: string; product_id: string | null; title: string; actio
 type EvidenceRow = { id: string; title: string; publisher: string; source_url: string; published_on: string | null; captured_on: string; topic: IntelligenceEvidence["topic"]; fact: string; interpretation: string; limitations: string; verification_status: IntelligenceEvidence["verificationStatus"]; review_note: string; reviewed_at: string | null; linked_count?: number };
 type ScenarioRow = { id: string; product_id: string; business_month: string; owner_id: string; name: string; status: "draft" | "submitted" | "approved" | "rejected" | "archived"; version: number; updated_at: string };
 type SnapshotRow = { id: string; inputs: string; result: string; formula_version: string; rationale: string; created_at: string; created_by: string };
-type AiRow = { id: string; scenario_id: string; snapshot_id: string | null; input_text: string; analysis: string; engine: "local_rules" | "openai"; model: string | null; created_at: string };
+type AiRow = { id: string; scenario_id: string; snapshot_id: string | null; input_text: string; analysis: string; engine: AssumptionAnalysisEngine; model: string | null; created_at: string };

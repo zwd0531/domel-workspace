@@ -21,7 +21,7 @@ The named volume `domel-demo-data` preserves evidence, scenario snapshots, AI an
 
 ## Formal server: Supabase
 
-For multi-user use, keep `DOMEL_DEMO_MODE=false`, configure the Supabase runtime values, apply migrations `0001` through `0009`, create the initial Administrator and follow `docs/production-readiness.md`. Do not mount or migrate the SQLite demonstration file into the formal environment.
+For multi-user use, keep `DOMEL_DEMO_MODE=false`, configure the Supabase runtime values, apply migrations `0001` through `0010`, create the initial Administrator and follow `docs/production-readiness.md`. Do not mount or migrate the SQLite demonstration file into the formal environment.
 
 ## Health endpoint
 

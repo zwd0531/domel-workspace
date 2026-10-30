@@ -1,5 +1,5 @@
 import type { AppRole } from "@/domain/permissions/policy";
-import type { ScenarioAssumptionAnalysis } from "@/domain/ai/assumption-analysis";
+import type { AssumptionAnalysisEngine, ScenarioAssumptionAnalysis } from "@/domain/ai/assumption-analysis";
 import type { ScenarioInputs, ScenarioResult } from "@/domain/scenario/types";
 
 export type ScenarioProduct = {
@@ -77,7 +77,7 @@ export type ScenarioAiAnalysisRecord = {
   snapshotId: string | null;
   inputText: string;
   analysis: ScenarioAssumptionAnalysis;
-  engine: "local_rules" | "openai";
+  engine: AssumptionAnalysisEngine;
   model: string | null;
   createdAt: string;
 };

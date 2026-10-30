@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { ScenarioAssumptionAnalysis } from "@/domain/ai/assumption-analysis";
+import type { AssumptionAnalysisEngine, ScenarioAssumptionAnalysis } from "@/domain/ai/assumption-analysis";
 import type { ScenarioInputs } from "@/domain/scenario/types";
 import type { SavedScenario, ScenarioAiAnalysisRecord } from "@/domain/scenario/workspace";
 
 type AnalysisResponse = {
   analysis: ScenarioAssumptionAnalysis;
-  engine: "openai" | "local_rules";
+  engine: AssumptionAnalysisEngine;
   model: string | null;
   fallbackReason: string | null;
   saved: boolean;
@@ -92,7 +92,7 @@ export function AiAssumptionPanel({
   const history = scenario ? analyses.filter((item) => item.scenarioId === scenario.id).slice(0, 3) : [];
 
   return <section className="panel panel-pad ai-assumption-panel">
-    <div className="row"><div><span className="eyebrow">AI ASSUMPTION REVIEW</span><h2>Parse and challenge the scenario narrative</h2><p className="small muted">The analyzer separates explicit assumptions from gaps, suggests parameter changes and leaves final control with the user.</p></div><span className={result?.engine === "openai" ? "badge green" : "badge blue"}>{result ? result.engine === "openai" ? `OpenAI · ${result.model}` : "Local demo mode" : "AI analyzer ready"}</span></div>
+    <div className="row"><div><span className="eyebrow">AI ASSUMPTION REVIEW</span><h2>Parse and challenge the scenario narrative</h2><p className="small muted">The analyzer separates explicit assumptions from gaps, suggests parameter changes and leaves final control with the user.</p></div><span className={result?.engine === "local_rules" ? "badge blue" : "badge green"}>{result ? engineLabel(result.engine, result.model) : "AI analyzer ready"}</span></div>
     <div className="ai-action-row"><p className="small muted">Uses the rationale text entered above. The local mode recognizes common English and Chinese demand, price, cost, capacity and capex statements.</p><div className="button-row"><button className="btn small" type="button" disabled={!canEdit || loading} onClick={() => onTextChange("Demand is expected to grow 15% in Q1 2027, raw material cost may increase 8%, and capacity will remain unchanged. Review the scenario if demand growth falls below 5%. Source: internal sales forecast.")}>Use example</button><button className="btn primary" type="button" disabled={loading || text.trim().length < 10} onClick={analyze}>{loading ? "Analyzing…" : "Analyze assumptions"}</button></div></div>
     {error ? <div className="scenario-message error">{error}</div> : null}
     {result?.fallbackReason ? <div className="notice"><span>ⓘ</span><span>{result.fallbackReason}</span></div> : null}
@@ -108,12 +108,18 @@ export function AiAssumptionPanel({
       <div className="ai-apply"><div><h3>Scenario parameter suggestions</h3><div className="button-row">{Object.entries(analysis.parameterSuggestions).map(([key, value]) => value === null ? null : <span className="badge blue" key={key}>{parameterLabel(key)} · {formatSuggestion(key, value)}</span>)}</div><p className="small muted">Applying suggestions changes the editable scenario fields only. Save a snapshot separately when satisfied.</p></div><button className="btn" type="button" disabled={!canEdit || !suggestionCount || applied} onClick={applySuggestions}>{applied ? "Applied to fields" : `Apply ${suggestionCount} suggestion${suggestionCount === 1 ? "" : "s"}`}</button></div>
     </div> : <div className="ai-empty"><strong>Turn a narrative into testable assumptions.</strong><p>Enter at least one quantified statement in the rationale field, then run the analysis.</p></div>}
 
-    {history.length ? <details className="ai-history"><summary>Previous analyses ({history.length})</summary><div>{history.map((item) => <article key={item.id}><span className={item.engine === "openai" ? "badge green" : "badge blue"}>{item.engine === "openai" ? item.model ?? "OpenAI" : "Local"}</span><strong>{item.analysis.overallScore}/100</strong><small>{formatDate(item.createdAt)}</small><p>{item.analysis.summary}</p></article>)}</div></details> : null}
+    {history.length ? <details className="ai-history"><summary>Previous analyses ({history.length})</summary><div>{history.map((item) => <article key={item.id}><span className={item.engine === "local_rules" ? "badge blue" : "badge green"}>{engineLabel(item.engine, item.model)}</span><strong>{item.analysis.overallScore}/100</strong><small>{formatDate(item.createdAt)}</small><p>{item.analysis.summary}</p></article>)}</div></details> : null}
   </section>;
 }
 
 function ReviewList({ title, items, tone, empty }: { title: string; items: string[]; tone: string; empty: string }) {
   return <div className={tone}><h3>{title}</h3>{items.length ? <ul>{items.map((item) => <li key={item}>{item}</li>)}</ul> : <p className="small muted">{empty}</p>}</div>;
+}
+
+function engineLabel(engine: AssumptionAnalysisEngine, model: string | null) {
+  if (engine === "deepseek") return `DeepSeek · ${model ?? "configured model"}`;
+  if (engine === "openai") return `OpenAI · ${model ?? "historical run"}`;
+  return "Local fallback";
 }
 
 function applyPercent(base: number, percentage: number | null) {

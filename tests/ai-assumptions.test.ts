@@ -29,20 +29,24 @@ describe("scenario AI assumption analysis", () => {
     expect(scenarioAssumptionAnalysisSchema.safeParse(analysis).success).toBe(true);
   });
 
-  it("uses strict structured output with a local fallback", () => {
+  it("uses DeepSeek structured JSON with a local fallback", () => {
     const provider = readFileSync(new URL("../server/ai/analyze-assumptions.ts", import.meta.url), "utf8");
-    expect(provider).toContain('type: "json_schema"');
-    expect(provider).toContain("strict: true");
-    expect(provider).toContain("store: false");
+    expect(provider).toContain("DEEPSEEK_API_KEY");
+    expect(provider).toContain("api.deepseek.com");
+    expect(provider).toContain('response_format: { type: "json_object" }');
+    expect(provider).toContain('engine: "deepseek"');
     expect(provider).toContain("analyzeAssumptionsLocally");
     expect(provider).toContain("fallbackReason");
+    expect(provider).not.toContain("OPENAI_API_KEY");
   });
 
   it("persists only a simple scenario-linked analysis history", () => {
-    const migration = readFileSync(new URL("../db/migrations/0008_scenario_ai_analysis.sql", import.meta.url), "utf8");
-    expect(migration).toContain("create table public.scenario_ai_analyses");
-    expect(migration).toContain("scenario_id uuid not null references public.scenarios");
-    expect(migration).toContain("analysis jsonb not null");
-    expect(migration).toContain("engine in ('local_rules', 'openai')");
+    const createMigration = readFileSync(new URL("../db/migrations/0008_scenario_ai_analysis.sql", import.meta.url), "utf8");
+    const providerMigration = readFileSync(new URL("../db/migrations/0010_deepseek_scenario_analysis.sql", import.meta.url), "utf8");
+    expect(createMigration).toContain("create table public.scenario_ai_analyses");
+    expect(createMigration).toContain("scenario_id uuid not null references public.scenarios");
+    expect(createMigration).toContain("analysis jsonb not null");
+    expect(providerMigration).toContain("scenario_ai_analyses_engine_check");
+    expect(providerMigration).toContain("engine in ('local_rules', 'deepseek', 'openai')");
   });
 });

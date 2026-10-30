@@ -3,6 +3,7 @@ import { scenarioInputSchema } from "@/domain/scenario/schema";
 
 export const assumptionCategorySchema = z.enum(["demand", "price", "variable_cost", "fixed_cost", "capacity", "capex", "other"]);
 export const analysisConfidenceSchema = z.enum(["low", "medium", "high"]);
+export const assumptionAnalysisEngineSchema = z.enum(["local_rules", "deepseek", "openai"]);
 const databaseId = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 
 export const scenarioAssumptionAnalysisSchema = z.object({
@@ -40,6 +41,7 @@ export const assumptionAnalysisRequestSchema = z.object({
 
 export type ScenarioAssumptionAnalysis = z.infer<typeof scenarioAssumptionAnalysisSchema>;
 export type AssumptionAnalysisRequest = z.infer<typeof assumptionAnalysisRequestSchema>;
+export type AssumptionAnalysisEngine = z.infer<typeof assumptionAnalysisEngineSchema>;
 
 type Category = z.infer<typeof assumptionCategorySchema>;
 
