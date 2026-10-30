@@ -3,6 +3,8 @@ import { EVIDENCE_STATUSES, EVIDENCE_TOPICS } from "@/domain/intelligence/consta
 import type { IntelligenceData, IntelligenceEvidence } from "@/domain/intelligence/types";
 import type { AuthorizationContext } from "@/server/auth/context";
 import { createSupabaseServerClient } from "@/server/supabase/server";
+import { isDemoMode } from "@/server/demo/config";
+import { loadDemoIntelligenceData } from "@/server/demo/database";
 
 const evidenceSchema = z.object({
   id: z.string(),
@@ -22,6 +24,7 @@ const evidenceSchema = z.object({
 const linkSchema = z.object({ evidence_id: z.string() });
 
 export async function loadIntelligenceData(auth: AuthorizationContext): Promise<IntelligenceData> {
+  if (isDemoMode()) return loadDemoIntelligenceData();
   const supabase = await createSupabaseServerClient();
   const [profileResult, evidenceResult, linkResult] = await Promise.all([
     supabase.from("profiles").select("display_name").eq("id", auth.userId).single(),

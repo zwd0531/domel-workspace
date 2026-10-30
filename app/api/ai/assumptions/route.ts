@@ -3,6 +3,8 @@ import { canAny } from "@/domain/permissions/policy";
 import { analyzeScenarioAssumptions } from "@/server/ai/analyze-assumptions";
 import { getAuthorizationContext } from "@/server/auth/context";
 import { createSupabaseServerClient } from "@/server/supabase/server";
+import { isDemoMode } from "@/server/demo/config";
+import { saveDemoAiAnalysis } from "@/server/demo/database";
 
 export async function POST(request: Request) {
   const auth = await getAuthorizationContext();
@@ -20,6 +22,10 @@ export async function POST(request: Request) {
   let saved = false;
   let saveWarning: string | null = null;
   if (parsed.data.scenarioId) {
+    if (isDemoMode()) {
+      saved = saveDemoAiAnalysis(parsed.data, run.analysis, run.engine, run.model);
+      return Response.json({ ...run, saved, saveWarning });
+    }
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.from("scenario_ai_analyses").insert({
       scenario_id: parsed.data.scenarioId,

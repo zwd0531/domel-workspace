@@ -6,6 +6,8 @@ import { z } from "zod";
 import { isAppRole } from "@/domain/permissions/policy";
 import { getAuthorizationContext } from "@/server/auth/context";
 import { createSupabaseServerClient } from "@/server/supabase/server";
+import { isDemoMode } from "@/server/demo/config";
+import { toggleDemoWorkItem } from "@/server/demo/database";
 
 const workItemIdSchema = z.string().min(1).max(100);
 
@@ -15,6 +17,11 @@ export async function toggleWorkItem(formData: FormData) {
 
   const auth = await getAuthorizationContext();
   if (!auth) redirect("/login");
+  if (isDemoMode()) {
+    toggleDemoWorkItem(id.data);
+    revalidatePath("/dashboard");
+    return;
+  }
 
   const supabase = await createSupabaseServerClient();
   const { data: item, error } = await supabase

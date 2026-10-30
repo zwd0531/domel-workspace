@@ -1,0 +1,32 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { assumptionAnalysisRequestSchema } from "@/domain/ai/assumption-analysis";
+
+describe("local SQLite demonstration mode", () => {
+  it("remains explicitly opt-in and separate from formal Supabase mode", () => {
+    const config = readFileSync(new URL("../server/demo/config.ts", import.meta.url), "utf8");
+    const proxy = readFileSync(new URL("../server/supabase/proxy.ts", import.meta.url), "utf8");
+    expect(config).toContain('process.env.DOMEL_DEMO_MODE === "true"');
+    expect(proxy).toContain("if (isDemoMode())");
+    expect(proxy).toContain("NEXT_PUBLIC_SUPABASE_URL");
+  });
+
+  it("persists demonstration records in ignored SQLite runtime files", () => {
+    const database = readFileSync(new URL("../server/demo/database.ts", import.meta.url), "utf8");
+    const ignore = readFileSync(new URL("../.gitignore", import.meta.url), "utf8");
+    expect(database).toContain('new DatabaseSync(join(directory, "domel-demo.sqlite"))');
+    expect(database).toContain("create table if not exists scenario_snapshots");
+    expect(database).toContain("create table if not exists research_runs");
+    expect(ignore).toContain("data/*.sqlite");
+  });
+
+  it("accepts the project database UUID format for saved demo scenarios", () => {
+    const parsed = assumptionAnalysisRequestSchema.safeParse({
+      text: "Demand is expected to grow 12% during 2027 based on the named market report.",
+      scenarioId: "50000000-0000-0000-0000-000000000001",
+      snapshotId: "60000000-0000-0000-0000-000000000001",
+      inputs: { quantity: 8200, price: 86, cost: 54, fixed: 118000, capacity: 9000, capex: 0, demand: 12 },
+    });
+    expect(parsed.success).toBe(true);
+  });
+});

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
 import { canAny, type AppRole } from "@/domain/permissions/policy";
+import { isDemoMode } from "@/server/demo/config";
 
 const ROLE_LABELS: Record<AppRole, string> = {
   sales: "Sales Coordinator",
@@ -23,6 +24,7 @@ export function WorkspaceHeader({
   roles: AppRole[];
   active?: "dashboard" | "scenarios" | "intelligence" | "admin";
 }) {
+  const demoMode = isDemoMode();
   const role = displayRole(roles);
   const initials = role === "sales" ? "SC" : role === "production_planner" ? "PP" : role === "quality_engineer" ? "QE" : role === "decision_owner" ? "DO" : "AD";
   const scenarioAccess = canAny(roles, "scenario:save");
@@ -38,7 +40,7 @@ export function WorkspaceHeader({
         {adminAccess ? <Link aria-current={active === "admin" ? "page" : undefined} href="/admin">⚙ Administration</Link> : null}
       </nav>
       <div className="header-actions">
-        <span className="environment-label"><i className="dot" /> FORMAL PROJECT</span>
+        <span className="environment-label"><i className="dot" /> {demoMode ? "LOCAL SQLITE DEMO" : "FORMAL PROJECT"}</span>
         <details className="account-menu">
           <summary className="account"><span className="avatar">{initials}</span><span>{displayName}<small>{ROLE_LABELS[role]} ▾</small></span></summary>
           <div className="account-popover"><p><strong>{displayName}</strong><br /><span>{ROLE_LABELS[role]}</span></p><form action={signOut}><button className="btn small" type="submit">Sign out</button></form></div>

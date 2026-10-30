@@ -1,9 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isDemoMode } from "@/server/demo/config";
 
 const PUBLIC_PATHS = new Set(["/login", "/setup", "/api/health"]);
 
 export async function updateSession(request: NextRequest) {
+  if (isDemoMode()) return NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const path = request.nextUrl.pathname;

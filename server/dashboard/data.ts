@@ -4,6 +4,8 @@ import { createSupabaseServerClient } from "@/server/supabase/server";
 import type { DashboardData, DashboardProduct, DashboardRow } from "@/domain/dashboard/types";
 import { DASHBOARD_MONTHS } from "@/domain/dashboard/constants";
 import { resolveDashboardRole } from "@/domain/dashboard/role";
+import { isDemoMode } from "@/server/demo/config";
+import { loadDemoDashboardData } from "@/server/demo/database";
 
 const productSchema = z.object({
   id: z.string(), code: z.string(), name: z.string(), family: z.string(), application: z.string(), owner_label: z.string().nullable(),
@@ -27,6 +29,7 @@ export async function loadDashboardData(
 ): Promise<DashboardData> {
   const role = resolveDashboardRole(auth.roles);
   if (!role) throw new Error("No dashboard role is assigned.");
+  if (isDemoMode()) return loadDemoDashboardData(role, filters);
 
   const month = DASHBOARD_MONTHS.includes(filters.month as (typeof DASHBOARD_MONTHS)[number]) ? filters.month! : "2026-10";
   const databaseMonth = `${month}-01`;

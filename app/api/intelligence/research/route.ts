@@ -3,6 +3,8 @@ import { canAny } from "@/domain/permissions/policy";
 import { getAuthorizationContext } from "@/server/auth/context";
 import { ResearchAgentError, runIntelligenceResearch } from "@/server/intelligence/research-agent";
 import { createSupabaseServerClient } from "@/server/supabase/server";
+import { isDemoMode } from "@/server/demo/config";
+import { saveDemoResearchRun } from "@/server/demo/database";
 
 export async function POST(request: Request) {
   const auth = await getAuthorizationContext();
@@ -18,6 +20,10 @@ export async function POST(request: Request) {
 
   try {
     const result = await runIntelligenceResearch(parsed.data.brief);
+    if (isDemoMode()) {
+      saveDemoResearchRun(parsed.data.brief, result);
+      return Response.json({ result, saved: true, saveWarning: null });
+    }
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.from("intelligence_research_runs").insert({
       brief: parsed.data.brief,

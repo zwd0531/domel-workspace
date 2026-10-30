@@ -2,6 +2,8 @@ import { canAny } from "@/domain/permissions/policy";
 import { evidenceCreateSchema } from "@/domain/scenario/schema";
 import { getAuthorizationContext } from "@/server/auth/context";
 import { createSupabaseServerClient } from "@/server/supabase/server";
+import { isDemoMode } from "@/server/demo/config";
+import { createDemoEvidence } from "@/server/demo/database";
 
 export async function POST(request: Request) {
   const auth = await getAuthorizationContext();
@@ -18,6 +20,8 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+
+  if (isDemoMode()) return Response.json(createDemoEvidence(parsed.data), { status: 201 });
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.rpc("create_evidence_record", {

@@ -42,6 +42,21 @@ const synthesisSchema = z.object({
   gaps: z.array(z.string().min(1).max(500)).max(6),
 });
 
+const rawSynthesisSchema = z.object({
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  findings: z.array(z.object({
+    sourceIndex: z.coerce.number().int(),
+    title: z.string().min(1),
+    fact: z.string().min(1),
+    interpretation: z.string().min(1),
+    limitations: z.string().min(1),
+    topic: z.string(),
+    confidence: z.string(),
+  })).min(1),
+  gaps: z.array(z.string()).catch([]),
+});
+
 type Synthesis = z.infer<typeof synthesisSchema>;
 
 export async function runIntelligenceResearch(brief: string): Promise<IntelligenceResearchResult> {
@@ -147,7 +162,21 @@ async function synthesizeWithDeepSeek(key: string, model: string, brief: string,
   const payload = await response.json() as { choices?: Array<{ message?: { content?: string | null } }> };
   const content = payload.choices?.[0]?.message?.content;
   if (!content) throw new Error("DeepSeek returned no synthesis.");
-  return synthesisSchema.parse(JSON.parse(content));
+  const raw = rawSynthesisSchema.parse(JSON.parse(stripCodeFence(content)));
+  return synthesisSchema.parse({
+    title: raw.title.slice(0, 180),
+    summary: raw.summary.slice(0, 3_000),
+    findings: raw.findings.slice(0, 6).map((finding) => ({
+      sourceIndex: finding.sourceIndex,
+      title: finding.title.slice(0, 180),
+      fact: finding.fact.slice(0, 2_000),
+      interpretation: finding.interpretation.slice(0, 2_000),
+      limitations: finding.limitations.slice(0, 2_000),
+      topic: EVIDENCE_TOPICS.includes(finding.topic as (typeof EVIDENCE_TOPICS)[number]) ? finding.topic : "Demand",
+      confidence: ["low", "medium", "high"].includes(finding.confidence) ? finding.confidence : "low",
+    })),
+    gaps: raw.gaps.filter(Boolean).slice(0, 6).map((gap) => gap.slice(0, 500)),
+  });
 }
 
 function authHeaders(key: string) {
@@ -158,6 +187,10 @@ function normalizeDate(value: string | null): string | null {
   if (!value) return null;
   const match = value.match(/^\d{4}-\d{2}-\d{2}/);
   return match?.[0] ?? null;
+}
+
+function stripCodeFence(value: string) {
+  return value.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
 }
 
 export class ResearchAgentError extends Error {

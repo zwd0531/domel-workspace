@@ -1,4 +1,5 @@
 import { isAppRole, type AppRole } from "@/domain/permissions/policy";
+import { DEMO_AUTH_CONTEXT, isDemoMode } from "@/server/demo/config";
 import { createSupabaseServerClient } from "@/server/supabase/server";
 
 export type AuthorizationContext = {
@@ -8,6 +9,7 @@ export type AuthorizationContext = {
 };
 
 export async function getAuthorizationContext(): Promise<AuthorizationContext | null> {
+  if (isDemoMode()) return { ...DEMO_AUTH_CONTEXT, roles: [...DEMO_AUTH_CONTEXT.roles] } as AuthorizationContext;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

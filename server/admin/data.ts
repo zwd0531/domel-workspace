@@ -5,6 +5,8 @@ import type { AdminUser, AdminWorkspaceData, ImportRun } from "@/domain/admin/ty
 import { isAppRole } from "@/domain/permissions/policy";
 import type { AuthorizationContext } from "@/server/auth/context";
 import { createSupabaseServerClient } from "@/server/supabase/server";
+import { isDemoMode } from "@/server/demo/config";
+import { loadDemoAdminData } from "@/server/demo/database";
 
 const profileSchema = z.object({
   id: z.string(), display_name: z.string(), active: z.boolean(), created_at: z.string(),
@@ -21,6 +23,7 @@ function assertQuery(error: { message: string } | null, label: string) {
 }
 
 export async function loadAdminWorkspaceData(auth: AuthorizationContext): Promise<AdminWorkspaceData> {
+  if (isDemoMode()) return loadDemoAdminData();
   const supabase = await createSupabaseServerClient();
   const [profilesResult, rolesResult, importsResult, plantsResult, productsResult] = await Promise.all([
     supabase.from("profiles").select("id,display_name,active,created_at").order("display_name"),

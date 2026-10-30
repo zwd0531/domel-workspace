@@ -12,6 +12,8 @@ import type {
   ScenarioWorkspaceData,
   WorkflowNotification,
 } from "@/domain/scenario/workspace";
+import { isDemoMode } from "@/server/demo/config";
+import { loadDemoScenarioWorkspaceData } from "@/server/demo/database";
 
 const BUSINESS_MONTH = "2026-10-01";
 
@@ -68,6 +70,7 @@ function assertQuery(error: { message: string } | null, label: string) {
 }
 
 export async function loadScenarioWorkspaceData(auth: AuthorizationContext): Promise<ScenarioWorkspaceData> {
+  if (isDemoMode()) return loadDemoScenarioWorkspaceData();
   const supabase = await createSupabaseServerClient();
   const [profileResult, productResult, salesResult, productionResult, costResult, scenarioResult, evidenceResult, notificationResult] =
     await Promise.all([

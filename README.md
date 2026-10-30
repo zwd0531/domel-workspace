@@ -95,6 +95,24 @@ This directory is the formal project foundation for the existing offline Feature
 - simple creator-owned database history for research briefs and structured results;
 - API credentials kept server-only through runtime environment variables.
 
+## Local SQLite demonstration mode
+
+The formal Supabase implementation remains the deployment target. For immediate presentation and local review, an explicitly opt-in SQLite mode now provides:
+
+- automatic fictional seed data for products, monthly facts, work queues, evidence and a saved scenario;
+- a local demonstration Administrator session without a login dependency;
+- persistent evidence, scenario snapshots, AI analyses and Industry Intelligence research history;
+- live DeepSeek research when `DEEPSEEK_API_KEY` is supplied only to the server process;
+- a visible `LOCAL SQLITE DEMO` environment label so demonstration data cannot be mistaken for a formal deployment.
+
+Start it with:
+
+```text
+pnpm demo
+```
+
+The runtime database is created at `data/domel-demo.sqlite` and is excluded from Git. Delete that file while the server is stopped to reset the fictional seed data.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.

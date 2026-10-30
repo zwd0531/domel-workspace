@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/server/supabase/server";
+import { isDemoMode } from "@/server/demo/config";
 
 const signInSchema = z.object({
   email: z.email().trim().toLowerCase(),
@@ -15,6 +16,7 @@ function safeReturnPath(value: string | undefined) {
 }
 
 export async function signIn(formData: FormData) {
+  if (isDemoMode()) redirect("/dashboard");
   const parsed = signInSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -35,6 +37,7 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signOut() {
+  if (isDemoMode()) redirect("/dashboard");
   if (isSupabaseConfigured()) {
     const supabase = await createSupabaseServerClient();
     await supabase.auth.signOut();

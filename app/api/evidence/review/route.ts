@@ -2,6 +2,8 @@ import { canAny } from "@/domain/permissions/policy";
 import { evidenceReviewSchema } from "@/domain/scenario/schema";
 import { getAuthorizationContext } from "@/server/auth/context";
 import { createSupabaseServerClient } from "@/server/supabase/server";
+import { isDemoMode } from "@/server/demo/config";
+import { reviewDemoEvidence } from "@/server/demo/database";
 
 export async function POST(request: Request) {
   const auth = await getAuthorizationContext();
@@ -14,6 +16,11 @@ export async function POST(request: Request) {
   const parsed = evidenceReviewSchema.safeParse(body);
   if (!parsed.success) {
     return Response.json({ error: "Invalid evidence review.", details: parsed.error.flatten() }, { status: 400 });
+  }
+
+  if (isDemoMode()) {
+    try { return Response.json(reviewDemoEvidence(parsed.data.evidenceId, parsed.data.status, parsed.data.reviewNote)); }
+    catch { return Response.json({ error: "Unable to review the evidence record." }, { status: 400 }); }
   }
 
   const supabase = await createSupabaseServerClient();

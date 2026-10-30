@@ -56,7 +56,7 @@ export function buildSearchOnlyDigest(brief: string, searchQuery: string, source
     publisher: source.siteName || hostname(source.url),
     publishedOn: source.publishedOn,
     title: source.title.slice(0, 180),
-    fact: (source.summary || source.snippet).slice(0, 2_000),
+    fact: (source.summary || source.snippet).slice(0, 700),
     interpretation: "This source may be relevant to the research brief, but no model-generated interpretation is shown because synthesis was unavailable.",
     limitations: "Search-result text has not been independently verified. Open the original source and review its context before using it in a decision.",
     topic: "Demand" as const,
