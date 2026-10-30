@@ -1,4 +1,5 @@
 import { signIn } from "@/app/actions/auth";
+import { AUTH_PASSWORD_MIN_LENGTH } from "@/server/auth/config";
 
 export const dynamic = "force-dynamic";
 
@@ -7,7 +8,7 @@ type LoginPageProps = {
 };
 
 const ERROR_MESSAGES: Record<string, string> = {
-  "invalid-form": "Enter a valid work email and a password of at least eight characters.",
+  "invalid-form": `Enter a valid work email and a password of at least ${AUTH_PASSWORD_MIN_LENGTH} characters.`,
   "invalid-credentials": "The email or password is incorrect, or this account is not active.",
 };
 
@@ -46,7 +47,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </div>
               <div className="field">
                 <label htmlFor="auth-password">Password</label>
-                <input id="auth-password" name="password" type="password" autoComplete="current-password" required minLength={8} maxLength={200} />
+                <input id="auth-password" name="password" type="password" autoComplete="current-password" required minLength={AUTH_PASSWORD_MIN_LENGTH} maxLength={200} />
               </div>
             </div>
             <button className="btn primary full auth-submit" type="submit">Open my dashboard →</button>

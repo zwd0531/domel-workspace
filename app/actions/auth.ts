@@ -4,10 +4,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/server/supabase/server";
 import { isDemoMode } from "@/server/demo/config";
+import { AUTH_PASSWORD_MIN_LENGTH } from "@/server/auth/config";
 
 const signInSchema = z.object({
   email: z.email().trim().toLowerCase(),
-  password: z.string().min(8).max(200),
+  password: z.string().min(AUTH_PASSWORD_MIN_LENGTH).max(200),
   next: z.string().optional(),
 });
 
