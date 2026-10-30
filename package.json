@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "dev:formal": "node scripts/start-formal.mjs",
     "demo": "node scripts/start-demo.mjs",
     "build": "next build",
     "start": "next start",
