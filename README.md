@@ -15,10 +15,22 @@ This directory is the formal project foundation for the existing offline Feature
 - unit tests for formulas and sensitive permissions;
 - Docker standalone deployment configuration and health endpoint.
 
+## Second milestone completed in source
+
+- formal email/password login using Supabase Auth cookies;
+- no public registration or role selection on the login page;
+- Next.js Proxy session refresh with secure authorization repeated in the data layer;
+- database-backed Sales, Production Planner and Quality Engineer dashboards;
+- role-specific KPIs, product records, work queues, filters and CSV export;
+- server-authorized work-item status updates;
+- sales, production, quality and cost facts split into separate permission boundaries;
+- weighted production and quality summary calculations;
+- responsive visual styling retained from the offline demo.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
-2. Apply `db/migrations/0001_initial_schema.sql` to a new Supabase/PostgreSQL environment.
+2. Apply every SQL file under `db/migrations` in filename order to a new Supabase/PostgreSQL environment.
 3. Create the first user, insert its `profiles` row, and assign the `admin` role through a trusted SQL/admin session.
 4. Run `db/seed/demo.sql` only in a development or UAT database.
 5. Install and validate:
@@ -44,4 +56,4 @@ Open `/api/health` to verify the running service and formula version.
 
 ## Next implementation slice
 
-Migrate the existing login shell and three role dashboards without changing their visual design. Replace hard-coded records with permission-filtered queries from the new database, then migrate Feature 2 scenario save/load behavior.
+Migrate Feature 2 scenario save/load behavior and the evidence-to-scenario bridge. Only Decision Owner and Admin roles should receive cost, profit, snapshot and approval capabilities.
