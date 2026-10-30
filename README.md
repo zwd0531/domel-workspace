@@ -1,0 +1,47 @@
+# Domel Decision Workspace
+
+This directory is the formal project foundation for the existing offline Feature 2 demo. The original HTML remains unchanged and available for demonstrations while the production system is migrated by vertical slice.
+
+## First milestone completed in source
+
+- Next.js and TypeScript project structure;
+- versioned, framework-independent scenario calculation module;
+- explicit permission matrix for five application roles;
+- server-side scenario calculation endpoint protected by authentication and permissions;
+- Supabase server client and authorization-context adapter;
+- PostgreSQL schema with separated operations, sales and cost data;
+- Row Level Security policies, audit records and immutable scenario snapshots;
+- fictional seed data kept separate from migrations;
+- unit tests for formulas and sensitive permissions;
+- Docker standalone deployment configuration and health endpoint.
+
+## Local setup
+
+1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
+2. Apply `db/migrations/0001_initial_schema.sql` to a new Supabase/PostgreSQL environment.
+3. Create the first user, insert its `profiles` row, and assign the `admin` role through a trusted SQL/admin session.
+4. Run `db/seed/demo.sql` only in a development or UAT database.
+5. Install and validate:
+
+```text
+pnpm install
+pnpm test
+pnpm typecheck
+pnpm lint
+pnpm build
+pnpm dev
+```
+
+Open `/api/health` to verify the running service and formula version.
+
+## Security rules
+
+- Do not put service-role keys in browser code or commit them to the repository.
+- Do not allow public self-registration to assign application roles.
+- Financial fields live in a separate table and require `decision_owner` or `admin` access.
+- Scenario results submitted by a browser are never authoritative; the server recalculates them.
+- The permission matrix and data definitions must be reviewed with the business owner before real data is imported.
+
+## Next implementation slice
+
+Migrate the existing login shell and three role dashboards without changing their visual design. Replace hard-coded records with permission-filtered queries from the new database, then migrate Feature 2 scenario save/load behavior.
