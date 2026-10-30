@@ -2,11 +2,13 @@ import { z } from "zod";
 import type { AuthorizationContext } from "@/server/auth/context";
 import { createSupabaseServerClient } from "@/server/supabase/server";
 import { scenarioInputSchema } from "@/domain/scenario/schema";
+import { scenarioAssumptionAnalysisSchema } from "@/domain/ai/assumption-analysis";
 import type {
   DecisionRecord,
   EvidenceRecord,
   SavedScenario,
   ScenarioSnapshot,
+  ScenarioAiAnalysisRecord,
   ScenarioWorkspaceData,
   WorkflowNotification,
 } from "@/domain/scenario/workspace";
@@ -55,6 +57,11 @@ const notificationRowSchema = z.object({
   id: z.string(), title: z.string(), body: z.string(), entity_type: z.string(), entity_id: z.string(),
   read_at: z.string().nullable(), created_at: z.string(),
 });
+const aiAnalysisRowSchema = z.object({
+  id: z.string(), scenario_id: z.string(), snapshot_id: z.string().nullable(), input_text: z.string(),
+  analysis: scenarioAssumptionAnalysisSchema, engine: z.enum(["local_rules", "openai"]),
+  model: z.string().nullable(), created_at: z.string(),
+});
 
 function assertQuery(error: { message: string } | null, label: string) {
   if (error) throw new Error(`${label}: ${error.message}`);
@@ -85,17 +92,19 @@ export async function loadScenarioWorkspaceData(auth: AuthorizationContext): Pro
 
   const scenarioRows = z.array(scenarioRowSchema).parse(scenarioResult.data);
   const scenarioIds = scenarioRows.map((scenario) => scenario.id);
-  const [snapshotResult, linkResult, decisionResult] = scenarioIds.length
+  const [snapshotResult, linkResult, decisionResult, aiAnalysisResult] = scenarioIds.length
     ? await Promise.all([
         supabase.from("scenario_snapshots").select("id,scenario_id,created_by,inputs,calculated_result,formula_version,rationale,created_at").in("scenario_id", scenarioIds).order("created_at", { ascending: false }),
         supabase.from("scenario_evidence").select("scenario_id,evidence_id").in("scenario_id", scenarioIds),
         supabase.from("decisions").select("id,scenario_id,snapshot_id,title,recommendation,review_trigger,status,submitted_by,reviewed_by,review_note,reviewed_at,created_at").in("scenario_id", scenarioIds).order("created_at", { ascending: false }),
+        supabase.from("scenario_ai_analyses").select("id,scenario_id,snapshot_id,input_text,analysis,engine,model,created_at").in("scenario_id", scenarioIds).order("created_at", { ascending: false }).limit(50),
       ])
-    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
+    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
 
   assertQuery(snapshotResult.error, "Unable to load scenario snapshots");
   assertQuery(linkResult.error, "Unable to load scenario evidence links");
   assertQuery(decisionResult.error, "Unable to load decisions");
+  assertQuery(aiAnalysisResult.error, "Unable to load AI assumption analyses");
 
   const sales = new Map(z.array(salesSchema).parse(salesResult.data).map((row) => [row.product_id, row]));
   const production = new Map(z.array(productionSchema).parse(productionResult.data).map((row) => [row.product_id, row]));
@@ -176,6 +185,17 @@ export async function loadScenarioWorkspaceData(auth: AuthorizationContext): Pro
     createdAt: row.created_at,
   }));
 
+  const aiAnalyses: ScenarioAiAnalysisRecord[] = z.array(aiAnalysisRowSchema).parse(aiAnalysisResult.data).map((row) => ({
+    id: row.id,
+    scenarioId: row.scenario_id,
+    snapshotId: row.snapshot_id,
+    inputText: row.input_text,
+    analysis: row.analysis,
+    engine: row.engine,
+    model: row.model,
+    createdAt: row.created_at,
+  }));
+
   return {
     userId: auth.userId,
     displayName: String(profileResult.data?.display_name ?? auth.email ?? "Domel user"),
@@ -205,5 +225,6 @@ export async function loadScenarioWorkspaceData(auth: AuthorizationContext): Pro
     scenarios,
     decisions,
     notifications,
+    aiAnalyses,
   };
 }

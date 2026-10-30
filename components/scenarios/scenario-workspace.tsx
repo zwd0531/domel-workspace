@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DecisionWorkflow } from "@/components/decisions/decision-workflow";
 import { NotificationCenter } from "@/components/notifications/notification-center";
+import { AiAssumptionPanel } from "@/components/scenarios/ai-assumption-panel";
 import { EVIDENCE_TOPICS } from "@/domain/intelligence/constants";
 import { calculateScenario } from "@/domain/scenario/calculate";
 import { interpretScenario } from "@/domain/scenario/interpret";
@@ -159,6 +160,16 @@ export function ScenarioWorkspace({
             <div className="scenario-input-grid">{INPUT_FIELDS.map((field) => <label className="field" key={field.key}><span>{field.label}</span><div className="number-field"><input type="number" min={field.key === "demand" ? -100 : 0} max={field.key === "demand" ? 200 : 1_000_000_000} step={field.step ?? 1} value={inputs[field.key]} onChange={(event) => updateInput(field.key, event.target.value)} disabled={!canEdit} /><small>{field.suffix}</small></div></label>)}</div>
             <label className="field scenario-rationale"><span>Rationale and conditions</span><textarea value={rationale} maxLength={2000} rows={4} onChange={(event) => setRationale(event.target.value)} placeholder="Explain why these assumptions are reasonable and what would trigger a review." disabled={!canEdit} /></label>
           </section>
+
+          <AiAssumptionPanel
+            scenario={selected}
+            analyses={data.aiAnalyses}
+            text={rationale}
+            inputs={inputs}
+            canEdit={canEdit}
+            onTextChange={setRationale}
+            onApplyInputs={(nextInputs) => { setInputs(nextInputs); setMessage({ tone: "ok", text: "AI suggestions were applied to the editable fields. Review them before saving." }); }}
+          />
 
           <section className="panel panel-pad scenario-results">
             <div className="row"><div><h2>Calculated outcome</h2><p className="small muted">Live browser preview. The database recalculates the same inputs before storage.</p></div><span className="badge green">Server verified on save</span></div>

@@ -11,6 +11,7 @@ const requiredMigrations = [
   "0005_industry_intelligence_review.sql",
   "0006_conditional_decision_workflow.sql",
   "0007_admin_import_console.sql",
+  "0008_scenario_ai_analysis.sql",
 ];
 
 const failures = [];

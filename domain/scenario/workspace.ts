@@ -1,4 +1,5 @@
 import type { AppRole } from "@/domain/permissions/policy";
+import type { ScenarioAssumptionAnalysis } from "@/domain/ai/assumption-analysis";
 import type { ScenarioInputs, ScenarioResult } from "@/domain/scenario/types";
 
 export type ScenarioProduct = {
@@ -70,6 +71,17 @@ export type WorkflowNotification = {
   createdAt: string;
 };
 
+export type ScenarioAiAnalysisRecord = {
+  id: string;
+  scenarioId: string;
+  snapshotId: string | null;
+  inputText: string;
+  analysis: ScenarioAssumptionAnalysis;
+  engine: "local_rules" | "openai";
+  model: string | null;
+  createdAt: string;
+};
+
 export type ScenarioWorkspaceData = {
   userId: string;
   displayName: string;
@@ -80,4 +92,5 @@ export type ScenarioWorkspaceData = {
   scenarios: SavedScenario[];
   decisions: DecisionRecord[];
   notifications: WorkflowNotification[];
+  aiAnalyses: ScenarioAiAnalysisRecord[];
 };

@@ -74,6 +74,16 @@ This directory is the formal project foundation for the existing offline Feature
 - environment preflight that checks Supabase configuration without printing secrets;
 - production/UAT evidence checklist in `docs/production-readiness.md`.
 
+## Scenario AI assumption MVP completed in source
+
+- interactive assumption analysis inside Scenario Planning;
+- English and Chinese local parsing for demand, price, variable cost, fixed cost, capacity and capex statements;
+- completeness score, confidence, strengths, concerns, missing information and suggested wording;
+- recognized percentage changes can be applied to editable scenario fields before saving;
+- optional OpenAI Responses API integration using strict Structured Outputs;
+- automatic fallback to the local analyzer when no API key is configured or the provider is unavailable;
+- simple database history linked to saved scenarios and snapshots.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
@@ -104,4 +114,4 @@ Open `/api/health` to verify the running service and formula version.
 
 ## Next implementation slice
 
-Connect the target Supabase UAT project, apply migrations `0001` through `0007`, create the required test accounts and execute the recorded production-readiness and two-account workflow checks.
+Add the Industry Intelligence research-agent MVP: accept a user brief, search public web sources, produce a cited structured digest and save selected findings as scenario evidence.
