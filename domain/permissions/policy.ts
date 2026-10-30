@@ -15,17 +15,19 @@ export type Permission =
   | "finance:read"
   | "scenario:calculate"
   | "scenario:save"
+  | "evidence:read"
   | "evidence:write"
   | "decision:approve"
   | "users:manage";
 
 const ROLE_PERMISSIONS: Record<AppRole, ReadonlySet<Permission>> = {
-  sales: new Set(["dashboard:sales:read"]),
+  sales: new Set(["dashboard:sales:read", "evidence:read"]),
   production_planner: new Set([
     "dashboard:production:read",
     "dashboard:quality:read",
+    "evidence:read",
   ]),
-  quality_engineer: new Set(["dashboard:quality:read"]),
+  quality_engineer: new Set(["dashboard:quality:read", "evidence:read"]),
   decision_owner: new Set([
     "dashboard:sales:read",
     "dashboard:production:read",
@@ -33,6 +35,7 @@ const ROLE_PERMISSIONS: Record<AppRole, ReadonlySet<Permission>> = {
     "finance:read",
     "scenario:calculate",
     "scenario:save",
+    "evidence:read",
     "evidence:write",
     "decision:approve",
   ]),
@@ -43,6 +46,7 @@ const ROLE_PERMISSIONS: Record<AppRole, ReadonlySet<Permission>> = {
     "finance:read",
     "scenario:calculate",
     "scenario:save",
+    "evidence:read",
     "evidence:write",
     "decision:approve",
     "users:manage",

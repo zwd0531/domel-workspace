@@ -4,6 +4,8 @@ import { can, canAny } from "@/domain/permissions/policy";
 describe("role permissions", () => {
   it("does not expose finance or scenario editing to Sales", () => {
     expect(can("sales", "dashboard:sales:read")).toBe(true);
+    expect(can("sales", "evidence:read")).toBe(true);
+    expect(can("sales", "evidence:write")).toBe(false);
     expect(can("sales", "finance:read")).toBe(false);
     expect(can("sales", "scenario:calculate")).toBe(false);
   });

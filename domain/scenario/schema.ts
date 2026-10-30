@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EVIDENCE_STATUSES, EVIDENCE_TOPICS } from "@/domain/intelligence/constants";
 
 const nonNegativeAmount = z.number().finite().min(0).max(1_000_000_000);
 const databaseId = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
@@ -28,8 +29,18 @@ export const evidenceCreateSchema = z.object({
   publisher: z.string().trim().min(1).max(120),
   sourceUrl: z.string().trim().url().max(2_000),
   publishedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
-  topic: z.enum(["Demand", "Competition", "Cost", "Capacity", "Quality", "Regulation"]),
+  topic: z.enum(EVIDENCE_TOPICS),
   fact: z.string().trim().min(1).max(2_000),
   interpretation: z.string().trim().min(1).max(2_000),
   limitations: z.string().trim().min(1).max(2_000),
+});
+
+export const evidenceReviewSchema = z.object({
+  evidenceId: databaseId,
+  status: z.enum(EVIDENCE_STATUSES),
+  reviewNote: z.string().trim().max(2_000).default(""),
+}).superRefine((value, context) => {
+  if (["needs_follow_up", "rejected"].includes(value.status) && !value.reviewNote) {
+    context.addIssue({ code: "custom", path: ["reviewNote"], message: "A review note is required for this status." });
+  }
 });

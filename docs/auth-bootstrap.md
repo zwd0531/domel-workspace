@@ -39,4 +39,7 @@ The first administrator must be assigned through a trusted database/admin sessio
 - A Decision Owner can inspect another owner's scenario but cannot save a new snapshot to it; an Admin can.
 - Direct inserts into `scenario_snapshots`, `scenario_evidence`, `evidence_records` and `audit_events` are denied.
 - Saving a scenario creates a recalculated snapshot, replaces its evidence links and writes an audit event in one transaction.
+- Every assigned role can read and export Industry Intelligence records.
+- Only Decision Owner and Admin can create or review evidence; follow-up and rejection require a reviewer note.
+- Run `db/seed/demo.sql` after assigning the first Admin or Decision Owner so the eleven attributed UAT evidence records receive a valid creator and reviewer.
 - The CSV export contains only the signed-in role's authorized fields.

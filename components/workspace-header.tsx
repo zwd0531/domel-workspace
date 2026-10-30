@@ -21,18 +21,19 @@ export function WorkspaceHeader({
 }: {
   displayName: string;
   roles: AppRole[];
-  active?: "dashboard" | "scenarios";
+  active?: "dashboard" | "scenarios" | "intelligence";
 }) {
   const role = displayRole(roles);
   const initials = role === "sales" ? "SC" : role === "production_planner" ? "PP" : role === "quality_engineer" ? "QE" : role === "decision_owner" ? "DO" : "AD";
   const scenarioAccess = canAny(roles, "scenario:save");
+  const intelligenceAccess = canAny(roles, "evidence:read");
   return (
     <header className="site-header">
       <Link className="brand" href="/dashboard"><span className="brand-mark">✦</span><span>domel<small>DECISION WORKSPACE</small></span></Link>
       <nav aria-label="Main navigation">
         <Link aria-current={active === "dashboard" ? "page" : undefined} href="/dashboard">▦ Business Dashboard</Link>
         {scenarioAccess ? <Link aria-current={active === "scenarios" ? "page" : undefined} href="/scenarios">▥ Scenario Planning</Link> : <span aria-disabled="true">▥ Scenario Planning</span>}
-        <span aria-disabled="true">◎ Industry Intelligence</span>
+        {intelligenceAccess ? <Link aria-current={active === "intelligence" ? "page" : undefined} href="/intelligence">◎ Industry Intelligence</Link> : <span aria-disabled="true">◎ Industry Intelligence</span>}
       </nav>
       <div className="header-actions">
         <span className="environment-label"><i className="dot" /> FORMAL PROJECT</span>

@@ -39,6 +39,17 @@ This directory is the formal project foundation for the existing offline Feature
 - evidence-to-scenario linking committed in the same transaction as the snapshot;
 - direct browser inserts blocked for calculated snapshots and evidence creation.
 
+## Third main feature completed in source
+
+- authenticated Industry Intelligence workspace for every application role;
+- evidence search plus topic and review-status filters;
+- fact, working interpretation and limitation fields kept visibly separate;
+- source-review states with reviewer notes, timestamps and audit events;
+- Decision Owner and Admin-only evidence creation and review;
+- server-authorized CSV export with spreadsheet-formula neutralization;
+- scenario-link usage counts for authorized decision roles;
+- eleven attributed public-source records migrated from the offline prototype as UAT seed data.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
