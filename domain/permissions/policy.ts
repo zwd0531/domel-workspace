@@ -19,6 +19,7 @@ export type Permission =
   | "evidence:write"
   | "decision:submit"
   | "decision:approve"
+  | "imports:manage"
   | "users:manage";
 
 const ROLE_PERMISSIONS: Record<AppRole, ReadonlySet<Permission>> = {
@@ -52,6 +53,7 @@ const ROLE_PERMISSIONS: Record<AppRole, ReadonlySet<Permission>> = {
     "evidence:write",
     "decision:submit",
     "decision:approve",
+    "imports:manage",
     "users:manage",
   ]),
 };

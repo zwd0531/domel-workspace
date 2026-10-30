@@ -62,6 +62,18 @@ This directory is the formal project foundation for the existing offline Feature
 - role-denial, self-approval and workflow-integrity tests;
 - two-account Supabase UAT procedure in `docs/decision-workflow-uat.md`.
 
+## Fifth milestone completed in source
+
+- Administrator-only operations console and navigation;
+- monthly sales, production, quality and cost CSV templates;
+- server-side CSV parsing with strict columns, ranges, duplicate detection, 1 MB and 500-row limits;
+- explicit preview with no database mutation before commit;
+- atomic PostgreSQL upserts with completed/failed import-run records and audit events;
+- direct authenticated writes revoked from operational fact, import-run and role-assignment tables;
+- controlled role assignment with audit notification and final-active-Administrator protection;
+- environment preflight that checks Supabase configuration without printing secrets;
+- production/UAT evidence checklist in `docs/production-readiness.md`.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
@@ -72,6 +84,7 @@ This directory is the formal project foundation for the existing offline Feature
 
 ```text
 pnpm install
+pnpm preflight:env
 pnpm test
 pnpm typecheck
 pnpm lint
@@ -91,4 +104,4 @@ Open `/api/health` to verify the running service and formula version.
 
 ## Next implementation slice
 
-Configure the target Supabase environment, run the two-account decision-workflow UAT, then add the production import and administration slice.
+Connect the target Supabase UAT project, apply migrations `0001` through `0007`, create the required test accounts and execute the recorded production-readiness and two-account workflow checks.

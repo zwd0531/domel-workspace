@@ -21,12 +21,13 @@ export function WorkspaceHeader({
 }: {
   displayName: string;
   roles: AppRole[];
-  active?: "dashboard" | "scenarios" | "intelligence";
+  active?: "dashboard" | "scenarios" | "intelligence" | "admin";
 }) {
   const role = displayRole(roles);
   const initials = role === "sales" ? "SC" : role === "production_planner" ? "PP" : role === "quality_engineer" ? "QE" : role === "decision_owner" ? "DO" : "AD";
   const scenarioAccess = canAny(roles, "scenario:save");
   const intelligenceAccess = canAny(roles, "evidence:read");
+  const adminAccess = canAny(roles, "users:manage");
   return (
     <header className="site-header">
       <Link className="brand" href="/dashboard"><span className="brand-mark">✦</span><span>domel<small>DECISION WORKSPACE</small></span></Link>
@@ -34,6 +35,7 @@ export function WorkspaceHeader({
         <Link aria-current={active === "dashboard" ? "page" : undefined} href="/dashboard">▦ Business Dashboard</Link>
         {scenarioAccess ? <Link aria-current={active === "scenarios" ? "page" : undefined} href="/scenarios">▥ Scenario Planning</Link> : <span aria-disabled="true">▥ Scenario Planning</span>}
         {intelligenceAccess ? <Link aria-current={active === "intelligence" ? "page" : undefined} href="/intelligence">◎ Industry Intelligence</Link> : <span aria-disabled="true">◎ Industry Intelligence</span>}
+        {adminAccess ? <Link aria-current={active === "admin" ? "page" : undefined} href="/admin">⚙ Administration</Link> : null}
       </nav>
       <div className="header-actions">
         <span className="environment-label"><i className="dot" /> FORMAL PROJECT</span>

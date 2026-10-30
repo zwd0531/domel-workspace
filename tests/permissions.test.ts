@@ -28,6 +28,13 @@ describe("role permissions", () => {
     expect(can("quality_engineer", "decision:approve")).toBe(false);
   });
 
+  it("reserves imports and user management for administrators", () => {
+    expect(can("admin", "imports:manage")).toBe(true);
+    expect(can("admin", "users:manage")).toBe(true);
+    expect(can("decision_owner", "imports:manage")).toBe(false);
+    expect(can("sales", "users:manage")).toBe(false);
+  });
+
   it("supports users with more than one assigned role", () => {
     expect(canAny(["quality_engineer", "decision_owner"], "finance:read")).toBe(true);
   });

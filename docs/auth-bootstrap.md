@@ -28,6 +28,8 @@ Allowed roles are `sales`, `production_planner`, `quality_engineer`, `decision_o
 
 The first administrator must be assigned through a trusted database/admin session. Never add a browser endpoint that can promote the current user to `admin`.
 
+After that first trusted assignment and migration `0007`, Administrators can use `/admin` to assign application roles. Every change is written through `set_user_roles`, audited and protected against removing the final active Administrator.
+
 ## Verification checklist
 
 - An account with no role reaches `/access-pending`.
