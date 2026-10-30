@@ -39,4 +39,13 @@ describe("local SQLite demonstration mode", () => {
     });
     expect(parsed.success).toBe(true);
   });
+
+  it("keeps the formal Supabase seed aligned with the current demo path", () => {
+    const seed = readFileSync(new URL("../db/seed/demo.sql", import.meta.url), "utf8");
+    expect(seed).toContain("EC Ventilation Motor 180");
+    expect(seed).toContain("Germany HVAC growth case");
+    expect(seed).toContain("Confirm November capacity");
+    expect(seed).toContain("'50000000-0000-0000-0000-000000000001'");
+    expect(seed).toContain("'60000000-0000-0000-0000-000000000001'");
+  });
 });
