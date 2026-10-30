@@ -22,7 +22,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   return (
     <>
-      <WorkspaceHeader displayName={data.displayName} role={data.role} />
+      <WorkspaceHeader displayName={data.displayName} roles={auth.roles} />
       <DashboardFilters products={data.products} month={data.month} productId={data.productId} />
       <DashboardView data={data} selectedRecord={params.record} />
       <footer className="site-footer"><span>© 2026 · Domel decision workspace</span><span>Server-authorized · Database-backed</span></footer>

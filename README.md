@@ -27,6 +27,18 @@ This directory is the formal project foundation for the existing offline Feature
 - weighted production and quality summary calculations;
 - responsive visual styling retained from the offline demo.
 
+## Third milestone completed in source
+
+- Decision Owner and Admin-only scenario planning workspace;
+- database-derived sales, capacity and cost baselines;
+- live transparent formula preview with rule-based risks and evidence gaps;
+- PostgreSQL-controlled scenario saving that recalculates every result server-side;
+- immutable versioned snapshots with rationale and audit events;
+- saved-scenario loading and snapshot history;
+- controlled evidence creation with publisher, URL, fact, interpretation and limitations;
+- evidence-to-scenario linking committed in the same transaction as the snapshot;
+- direct browser inserts blocked for calculated snapshots and evidence creation.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
@@ -56,4 +68,4 @@ Open `/api/health` to verify the running service and formula version.
 
 ## Next implementation slice
 
-Migrate Feature 2 scenario save/load behavior and the evidence-to-scenario bridge. Only Decision Owner and Admin roles should receive cost, profit, snapshot and approval capabilities.
+Add conditional decision submission and approval on top of a selected immutable snapshot, followed by workflow notifications and end-to-end role-denial tests.

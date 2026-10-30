@@ -35,4 +35,8 @@ The first administrator must be assigned through a trusted database/admin sessio
 - Production Planner can query `monthly_production` but receives no sales, quality or cost rows.
 - Quality Engineer can query `monthly_quality` but receives no sales, production or cost rows.
 - Decision Owner can read the required baseline tables and use scenario functions.
+- Decision Owner can create evidence and save an owned scenario through the controlled database functions.
+- A Decision Owner can inspect another owner's scenario but cannot save a new snapshot to it; an Admin can.
+- Direct inserts into `scenario_snapshots`, `scenario_evidence`, `evidence_records` and `audit_events` are denied.
+- Saving a scenario creates a recalculated snapshot, replaces its evidence links and writes an audit event in one transaction.
 - The CSV export contains only the signed-in role's authorized fields.

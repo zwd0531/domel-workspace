@@ -1,21 +1,37 @@
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
-import type { DashboardRole } from "@/domain/dashboard/types";
+import { canAny, type AppRole } from "@/domain/permissions/policy";
 
-const ROLE_LABELS: Record<DashboardRole, string> = {
+const ROLE_LABELS: Record<AppRole, string> = {
   sales: "Sales Coordinator",
   production_planner: "Production Planner",
   quality_engineer: "Quality Engineer",
+  decision_owner: "Decision Owner",
+  admin: "Administrator",
 };
 
-export function WorkspaceHeader({ displayName, role }: { displayName: string; role: DashboardRole }) {
-  const initials = role === "sales" ? "SC" : role === "production_planner" ? "PP" : "QE";
+function displayRole(roles: AppRole[]) {
+  return roles.includes("admin") ? "admin" : roles.includes("decision_owner") ? "decision_owner" : roles[0] ?? "sales";
+}
+
+export function WorkspaceHeader({
+  displayName,
+  roles,
+  active = "dashboard",
+}: {
+  displayName: string;
+  roles: AppRole[];
+  active?: "dashboard" | "scenarios";
+}) {
+  const role = displayRole(roles);
+  const initials = role === "sales" ? "SC" : role === "production_planner" ? "PP" : role === "quality_engineer" ? "QE" : role === "decision_owner" ? "DO" : "AD";
+  const scenarioAccess = canAny(roles, "scenario:save");
   return (
     <header className="site-header">
       <Link className="brand" href="/dashboard"><span className="brand-mark">✦</span><span>domel<small>DECISION WORKSPACE</small></span></Link>
       <nav aria-label="Main navigation">
-        <Link aria-current="page" href="/dashboard">▦ Business Dashboard</Link>
-        <span aria-disabled="true">▥ Scenario Planning</span>
+        <Link aria-current={active === "dashboard" ? "page" : undefined} href="/dashboard">▦ Business Dashboard</Link>
+        {scenarioAccess ? <Link aria-current={active === "scenarios" ? "page" : undefined} href="/scenarios">▥ Scenario Planning</Link> : <span aria-disabled="true">▥ Scenario Planning</span>}
         <span aria-disabled="true">◎ Industry Intelligence</span>
       </nav>
       <div className="header-actions">

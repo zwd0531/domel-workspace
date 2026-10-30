@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { calculateScenario, FORMULA_VERSION, validateScenarioInputs } from "@/domain/scenario/calculate";
+import { interpretScenario } from "@/domain/scenario/interpret";
+import { evidenceCreateSchema, scenarioSaveSchema } from "@/domain/scenario/schema";
 import type { ScenarioInputs } from "@/domain/scenario/types";
 
 const baseline: ScenarioInputs = {
@@ -41,5 +43,42 @@ describe("calculateScenario", () => {
       "demand must be between -100 and 200 percent.",
     );
     expect(() => calculateScenario({ ...baseline, cost: -1 })).toThrow();
+  });
+
+  it("flags unsupported demand growth until relevant evidence is linked", () => {
+    const inputs = { ...baseline, demand: 20 };
+    const result = calculateScenario(inputs);
+    expect(interpretScenario(inputs, result, []).evidenceGaps).toContain(
+      "Demand growth above 10 percent needs demand or competition evidence.",
+    );
+    expect(interpretScenario(inputs, result, ["Demand"]).evidenceGaps).not.toContain(
+      "Demand growth above 10 percent needs demand or competition evidence.",
+    );
+  });
+
+  it("validates a complete save request without accepting calculated results", () => {
+    const parsed = scenarioSaveSchema.parse({
+      scenarioId: null,
+      productId: "20000000-0000-0000-0000-000000000002",
+      businessMonth: "2026-10-01",
+      name: "Demand review",
+      inputs: baseline,
+      rationale: "Controlled UAT assumption.",
+      evidenceIds: [],
+      calculatedResult: { operatingProfit: 999_999_999 },
+    });
+    expect(parsed).not.toHaveProperty("calculatedResult");
+  });
+
+  it("requires evidence provenance and limitations", () => {
+    expect(evidenceCreateSchema.safeParse({
+      title: "Source",
+      publisher: "Publisher",
+      sourceUrl: "not-a-url",
+      topic: "Demand",
+      fact: "Fact",
+      interpretation: "Interpretation",
+      limitations: "",
+    }).success).toBe(false);
   });
 });
