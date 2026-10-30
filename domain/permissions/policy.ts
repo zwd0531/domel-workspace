@@ -17,6 +17,7 @@ export type Permission =
   | "scenario:save"
   | "evidence:read"
   | "evidence:write"
+  | "decision:submit"
   | "decision:approve"
   | "users:manage";
 
@@ -37,6 +38,7 @@ const ROLE_PERMISSIONS: Record<AppRole, ReadonlySet<Permission>> = {
     "scenario:save",
     "evidence:read",
     "evidence:write",
+    "decision:submit",
     "decision:approve",
   ]),
   admin: new Set([
@@ -48,6 +50,7 @@ const ROLE_PERMISSIONS: Record<AppRole, ReadonlySet<Permission>> = {
     "scenario:save",
     "evidence:read",
     "evidence:write",
+    "decision:submit",
     "decision:approve",
     "users:manage",
   ]),

@@ -44,3 +44,23 @@ export const evidenceReviewSchema = z.object({
     context.addIssue({ code: "custom", path: ["reviewNote"], message: "A review note is required for this status." });
   }
 });
+
+export const decisionSubmitSchema = z.object({
+  scenarioId: databaseId,
+  snapshotId: databaseId,
+  title: z.string().trim().min(1).max(180),
+  recommendation: z.string().trim().min(1).max(3_000),
+  reviewTrigger: z.string().trim().min(1).max(2_000),
+});
+
+export const decisionReviewSchema = z.object({
+  decisionId: databaseId,
+  action: z.enum(["approved", "rejected"]),
+  reviewNote: z.string().trim().max(2_000).default(""),
+}).superRefine((value, context) => {
+  if (value.action === "rejected" && !value.reviewNote) {
+    context.addIssue({ code: "custom", path: ["reviewNote"], message: "A rejection note is required." });
+  }
+});
+
+export const notificationReadSchema = z.object({ notificationId: databaseId });

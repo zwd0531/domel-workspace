@@ -50,6 +50,18 @@ This directory is the formal project foundation for the existing offline Feature
 - scenario-link usage counts for authorized decision roles;
 - eleven attributed public-source records migrated from the offline prototype as UAT seed data.
 
+## Fourth milestone completed in source
+
+- conditional decision submission bound to one selected immutable scenario snapshot;
+- scenario-owner or Admin submission with a single pending decision per scenario;
+- four-eyes approval that blocks the submitter from approving or rejecting their own decision;
+- mandatory rejection notes and preserved decision history;
+- submitted, approved and archived scenarios locked against additional snapshots;
+- database-controlled state transitions, audit events and workflow notifications;
+- per-user notification read state with Row Level Security;
+- role-denial, self-approval and workflow-integrity tests;
+- two-account Supabase UAT procedure in `docs/decision-workflow-uat.md`.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
@@ -79,4 +91,4 @@ Open `/api/health` to verify the running service and formula version.
 
 ## Next implementation slice
 
-Add conditional decision submission and approval on top of a selected immutable snapshot, followed by workflow notifications and end-to-end role-denial tests.
+Configure the target Supabase environment, run the two-account decision-workflow UAT, then add the production import and administration slice.

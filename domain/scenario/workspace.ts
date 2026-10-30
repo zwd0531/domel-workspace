@@ -45,6 +45,31 @@ export type SavedScenario = {
   snapshots: ScenarioSnapshot[];
 };
 
+export type DecisionRecord = {
+  id: string;
+  scenarioId: string;
+  snapshotId: string;
+  title: string;
+  recommendation: string;
+  reviewTrigger: string;
+  status: "submitted" | "approved" | "rejected" | "archived";
+  submittedBy: string;
+  reviewedBy: string | null;
+  reviewNote: string;
+  reviewedAt: string | null;
+  createdAt: string;
+};
+
+export type WorkflowNotification = {
+  id: string;
+  title: string;
+  body: string;
+  entityType: string;
+  entityId: string;
+  readAt: string | null;
+  createdAt: string;
+};
+
 export type ScenarioWorkspaceData = {
   userId: string;
   displayName: string;
@@ -53,4 +78,6 @@ export type ScenarioWorkspaceData = {
   products: ScenarioProduct[];
   evidence: EvidenceRecord[];
   scenarios: SavedScenario[];
+  decisions: DecisionRecord[];
+  notifications: WorkflowNotification[];
 };

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { DecisionWorkflow } from "@/components/decisions/decision-workflow";
+import { NotificationCenter } from "@/components/notifications/notification-center";
 import { EVIDENCE_TOPICS } from "@/domain/intelligence/constants";
 import { calculateScenario } from "@/domain/scenario/calculate";
 import { interpretScenario } from "@/domain/scenario/interpret";
@@ -47,7 +49,7 @@ export function ScenarioWorkspace({
   const result = useMemo(() => calculateScenario(inputs), [inputs]);
   const linkedTopics = data.evidence.filter((item) => evidenceIds.includes(item.id)).map((item) => item.topic);
   const interpretation = useMemo(() => interpretScenario(inputs, result, linkedTopics), [inputs, result, linkedTopics]);
-  const canEdit = !selected || selected.ownerId === data.userId || data.roles.includes("admin");
+  const canEdit = !selected || ((selected.ownerId === data.userId || data.roles.includes("admin")) && ["draft", "rejected"].includes(selected.status));
 
   function chooseProduct(nextProductId: string) {
     setProductId(nextProductId);
@@ -130,7 +132,8 @@ export function ScenarioWorkspace({
       </div>
 
       {message ? <div className={`scenario-message ${message.tone}`} role="status">{message.text}</div> : null}
-      {!canEdit ? <div className="scenario-message error">This scenario is read-only because it belongs to another Decision Owner.</div> : null}
+      {selected && !canEdit ? <div className="scenario-message error">This scenario is read-only because it belongs to another Decision Owner or its workflow status is {selected.status}.</div> : null}
+      <NotificationCenter data={data} />
 
       <div className="scenario-layout">
         <aside className="panel scenario-library">
@@ -173,6 +176,7 @@ export function ScenarioWorkspace({
           </section>
 
           <EvidencePanel data={data} evidenceIds={evidenceIds} setEvidenceIds={setEvidenceIds} canEdit={canEdit} createEvidence={createEvidence} creating={creatingEvidence} />
+          <DecisionWorkflow data={data} scenario={selected} />
         </section>
 
         <aside className="panel scenario-history">

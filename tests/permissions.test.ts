@@ -18,7 +18,14 @@ describe("role permissions", () => {
   it("lets a decision owner calculate, save and approve a decision", () => {
     expect(can("decision_owner", "scenario:calculate")).toBe(true);
     expect(can("decision_owner", "scenario:save")).toBe(true);
+    expect(can("decision_owner", "decision:submit")).toBe(true);
     expect(can("decision_owner", "decision:approve")).toBe(true);
+  });
+
+  it("does not expose decision submission or approval to operational roles", () => {
+    expect(can("sales", "decision:submit")).toBe(false);
+    expect(can("production_planner", "decision:approve")).toBe(false);
+    expect(can("quality_engineer", "decision:approve")).toBe(false);
   });
 
   it("supports users with more than one assigned role", () => {
