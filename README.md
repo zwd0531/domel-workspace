@@ -84,13 +84,25 @@ This directory is the formal project foundation for the existing offline Feature
 - automatic fallback to the local analyzer when no API key is configured or the provider is unavailable;
 - simple database history linked to saved scenarios and snapshots.
 
+## Industry Intelligence research-agent MVP completed in source
+
+- user-defined research briefs inside the existing Industry Intelligence workspace;
+- live public-web discovery through DeepSeek Search with attributed URLs, dates and source metadata;
+- DeepSeek JSON synthesis that keeps source facts, working interpretation and limitations separate;
+- search-only fallback that preserves useful sources if model synthesis is unavailable;
+- Decision Owner and Admin one-click promotion of selected findings into the existing unverified evidence workflow;
+- saved findings automatically appear in Scenario Planning's existing evidence bridge;
+- simple creator-owned database history for research briefs and structured results;
+- API credentials kept server-only through runtime environment variables.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
-2. Apply every SQL file under `db/migrations` in filename order to a new Supabase/PostgreSQL environment.
-3. Create the first user, insert its `profiles` row, and assign the `admin` role through a trusted SQL/admin session.
-4. Run `db/seed/demo.sql` only in a development or UAT database.
-5. Install and validate:
+2. Configure `DEEPSEEK_API_KEY` as a server runtime secret to enable live Industry Intelligence research; do not expose it with a `NEXT_PUBLIC_` name.
+3. Apply every SQL file under `db/migrations` in filename order to a new Supabase/PostgreSQL environment.
+4. Create the first user, insert its `profiles` row, and assign the `admin` role through a trusted SQL/admin session.
+5. Run `db/seed/demo.sql` only in a development or UAT database.
+6. Install and validate:
 
 ```text
 pnpm install
@@ -114,4 +126,4 @@ Open `/api/health` to verify the running service and formula version.
 
 ## Next implementation slice
 
-Add the Industry Intelligence research-agent MVP: accept a user brief, search public web sources, produce a cited structured digest and save selected findings as scenario evidence.
+Configure the simple Supabase environment, apply migrations `0001` through `0009`, seed demonstration data and run the first authenticated end-to-end UAT path.

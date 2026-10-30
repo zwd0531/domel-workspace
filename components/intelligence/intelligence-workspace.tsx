@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EVIDENCE_STATUSES, EVIDENCE_STATUS_LABELS, EVIDENCE_TOPICS, type EvidenceStatus } from "@/domain/intelligence/constants";
 import { filterEvidence } from "@/domain/intelligence/filter";
+import type { IntelligenceResearchResult, ResearchFinding } from "@/domain/intelligence/research";
 import type { IntelligenceData, IntelligenceEvidence } from "@/domain/intelligence/types";
 
 export function IntelligenceWorkspace({ data }: { data: IntelligenceData }) {
@@ -14,6 +15,11 @@ export function IntelligenceWorkspace({ data }: { data: IntelligenceData }) {
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [creating, setCreating] = useState(false);
   const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [researchBrief, setResearchBrief] = useState("Assess current European HVAC and high-efficiency ventilation motor demand, regulation and supply-chain signals relevant to a 2027 growth scenario.");
+  const [researching, setResearching] = useState(false);
+  const [researchResult, setResearchResult] = useState<IntelligenceResearchResult | null>(null);
+  const [savingSource, setSavingSource] = useState<string | null>(null);
+  const [savedSources, setSavedSources] = useState<Set<string>>(() => new Set());
   const canWrite = data.roles.includes("decision_owner") || data.roles.includes("admin");
   const visible = useMemo(() => filterEvidence(data.records, { query, topic, status }), [data.records, query, topic, status]);
   const sourceCount = new Set(visible.map((record) => record.publisher)).size;
@@ -74,6 +80,59 @@ export function IntelligenceWorkspace({ data }: { data: IntelligenceData }) {
     }
   }
 
+  async function runResearch() {
+    setResearching(true);
+    setMessage(null);
+    setResearchResult(null);
+    setSavedSources(new Set());
+    try {
+      const response = await fetch("/api/intelligence/research", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ brief: researchBrief }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "Unable to complete web research.");
+      setResearchResult(payload.result as IntelligenceResearchResult);
+      const historyNote = payload.saved ? " The run was added to research history." : ` ${payload.saveWarning ?? "The run was not saved."}`;
+      setMessage({ tone: "ok", text: `Research complete.${historyNote}` });
+    } catch (error) {
+      setMessage({ tone: "error", text: error instanceof Error ? error.message : "Unable to complete web research." });
+    } finally {
+      setResearching(false);
+    }
+  }
+
+  async function saveResearchFinding(finding: ResearchFinding) {
+    setSavingSource(finding.sourceUrl);
+    setMessage(null);
+    try {
+      const response = await fetch("/api/evidence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: finding.title,
+          publisher: finding.publisher.slice(0, 120),
+          sourceUrl: finding.sourceUrl,
+          publishedOn: finding.publishedOn,
+          topic: finding.topic,
+          fact: finding.fact,
+          interpretation: finding.interpretation,
+          limitations: finding.limitations,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error ?? "Unable to save this finding.");
+      setSavedSources((current) => new Set(current).add(finding.sourceUrl));
+      setMessage({ tone: "ok", text: "Finding saved as Unverified evidence for human review." });
+      router.refresh();
+    } catch (error) {
+      setMessage({ tone: "error", text: error instanceof Error ? error.message : "Unable to save this finding." });
+    } finally {
+      setSavingSource(null);
+    }
+  }
+
   function clearFilters() {
     setQuery("");
     setTopic("All");
@@ -88,6 +147,16 @@ export function IntelligenceWorkspace({ data }: { data: IntelligenceData }) {
       </div>
 
       {message ? <div className={`scenario-message ${message.tone}`} role="status">{message.text}</div> : null}
+
+      <section className="panel panel-pad research-agent" aria-labelledby="research-agent-title">
+        <div className="research-agent-head">
+          <div><span className="eyebrow">LIVE WEB RESEARCH · DEEPSEEK</span><h2 id="research-agent-title">Turn a business question into cited evidence.</h2><p className="small muted">The agent searches the public web, keeps claims tied to original URLs and separates source facts from AI interpretation. Results remain unverified until a person reviews them.</p></div>
+          <span className="badge blue">Search → synthesize → save</span>
+        </div>
+        <label className="field research-brief"><span>Research brief</span><textarea value={researchBrief} onChange={(event) => setResearchBrief(event.target.value)} minLength={10} maxLength={800} rows={3} placeholder="What market, technology, competitor, policy or supply-chain question should the agent investigate?" /></label>
+        <div className="research-actions"><span className="tiny muted">The brief and source excerpts are processed by DeepSeek. Live search and model calls may consume API balance.</span><button className="btn primary" type="button" onClick={runResearch} disabled={researching || researchBrief.trim().length < 10}>{researching ? "Researching public sources…" : "Run research agent"}</button></div>
+        {researchResult ? <ResearchResult result={researchResult} canWrite={canWrite} savingSource={savingSource} savedSources={savedSources} saveFinding={saveResearchFinding} /> : null}
+      </section>
 
       <section className="intel-summary" aria-label="Evidence summary">
         <Summary label="Evidence in view" value={visible.length} />
@@ -123,6 +192,25 @@ export function IntelligenceWorkspace({ data }: { data: IntelligenceData }) {
       {canWrite ? <EvidenceCreateForm createEvidence={createEvidence} creating={creating} /> : <div className="notice"><span>ⓘ</span><span>Your role can read and export the shared evidence library. Creation and review are restricted to Decision Owner and Admin roles.</span></div>}
     </main>
   );
+}
+
+function ResearchResult({
+  result,
+  canWrite,
+  savingSource,
+  savedSources,
+  saveFinding,
+}: {
+  result: IntelligenceResearchResult;
+  canWrite: boolean;
+  savingSource: string | null;
+  savedSources: Set<string>;
+  saveFinding: (finding: ResearchFinding) => Promise<void>;
+}) {
+  return <div className="research-result"><div className="research-result-summary"><div><div className="evidence-meta"><span className={`badge ${result.engine === "deepseek" ? "green" : "amber"}`}>{result.engine === "deepseek" ? `DeepSeek · ${result.model}` : "Search-only fallback"}</span><span>{result.sources.length} live sources</span><span>Query: {result.searchQuery}</span></div><h3>{result.title}</h3><p>{result.summary}</p></div></div>{result.fallbackReason ? <div className="notice"><span>ⓘ</span><span>{result.fallbackReason}</span></div> : null}<div className="research-findings">{result.findings.map((finding, index) => {
+    const saved = savedSources.has(finding.sourceUrl);
+    return <article key={`${finding.sourceUrl}:${index}`}><div className="evidence-meta"><span className="badge blue">{finding.topic}</span><span className="badge">{finding.confidence} confidence</span><span>Source {finding.sourceIndex}</span></div><h4>{finding.title}</h4><div className="research-finding-grid"><div><span className="eyebrow">SOURCE FACT / PARAPHRASE</span><p>{finding.fact}</p></div><div><span className="eyebrow">WORKING INTERPRETATION</span><p>{finding.interpretation}</p></div><div className="evidence-limit"><span className="eyebrow">LIMITATIONS</span><p>{finding.limitations}</p></div></div><div className="card-bottom"><span className="tiny muted">{finding.publisher}{finding.publishedOn ? ` · ${formatDate(finding.publishedOn)}` : " · Date not stated"}</span><div className="button-row"><a className="btn small" href={finding.sourceUrl} target="_blank" rel="noreferrer">Open source ↗</a>{canWrite ? <button className="btn small" type="button" onClick={() => saveFinding(finding)} disabled={saved || savingSource === finding.sourceUrl}>{saved ? "Saved as evidence" : savingSource === finding.sourceUrl ? "Saving…" : "Save as evidence"}</button> : null}</div></div></article>;
+  })}</div>{result.gaps.length ? <div className="research-gaps"><strong>Gaps to investigate next</strong><ul>{result.gaps.map((gap) => <li key={gap}>{gap}</li>)}</ul></div> : null}<details className="research-sources"><summary>View all cited sources ({result.sources.length})</summary><ol>{result.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.siteName ?? "Publisher not stated"}{source.publishedOn ? ` · ${formatDate(source.publishedOn)}` : ""} · authority {source.authority}/4</span></li>)}</ol></details></div>;
 }
 
 function Summary({ label, value }: { label: string; value: number }) {
