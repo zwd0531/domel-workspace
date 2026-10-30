@@ -7,7 +7,7 @@ The source project can be built without a database. A production or UAT acceptan
 1. Copy `.env.example` to `.env.local`.
 2. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the target Supabase project. Do not send these values through chat or commit `.env.local`.
 3. Run `pnpm preflight:env`. The script checks presence and shape only and never prints the values.
-4. Apply migrations `0001` through `0008` in filename order.
+4. Apply migrations `0001` through `0009` in filename order.
 5. Create the first account and assign its `admin` role through the trusted Supabase SQL editor as documented in `auth-bootstrap.md`.
 
 ## Required UAT evidence
@@ -21,9 +21,14 @@ The source project can be built without a database. A production or UAT acceptan
 - Last-admin control: attempt to remove the only remaining active Administrator and confirm rejection.
 - Notifications: confirm the affected user receives the role-update notification and can mark only their own notification as read.
 - AI assumptions: run once without `OPENAI_API_KEY` to verify local mode, then optionally configure the server-only key and confirm an OpenAI result is stored with `engine = openai`.
+- Industry research: configure `DEEPSEEK_API_KEY` as a runtime secret, run one cited research brief, save one finding as unverified evidence and confirm the matching research-history row.
 
 Record account IDs, HTTP statuses, database object IDs and audit-event IDs. Screenshots alone are not sufficient evidence of database authorization.
 
 ## Production data boundary
 
 The bundled CSV templates are structural examples. The definitions in `data-decisions.md` still require business-owner approval before real ERP, production, quality or finance data is imported. Do not run `db/seed/demo.sql` in production.
+
+## SQLite demonstration boundary
+
+`DOMEL_DEMO_MODE=true` bypasses formal authentication and uses fictional local data. It is only for a controlled presentation environment and is not production authorization evidence. Use the Docker profile in `deploy/README.md` behind private access when a quick demonstration server is needed.

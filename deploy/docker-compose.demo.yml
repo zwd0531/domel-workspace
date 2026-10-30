@@ -1,0 +1,18 @@
+services:
+  domel-demo:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: domel-workspace:demo
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DOMEL_DEMO_MODE: "true"
+      DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY:-}"
+      DEEPSEEK_MODEL: "${DEEPSEEK_MODEL:-deepseek-flash}"
+    volumes:
+      - domel-demo-data:/app/data
+
+volumes:
+  domel-demo-data:

@@ -113,6 +113,8 @@ pnpm demo
 
 The runtime database is created at `data/domel-demo.sqlite` and is excluded from Git. Delete that file while the server is stopped to reset the fictional seed data.
 
+For a Linux/Docker presentation server, follow `deploy/README.md`. The Compose profile mounts `/app/data` as a persistent named volume and reads DeepSeek credentials only from the runtime environment.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.

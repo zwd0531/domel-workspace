@@ -20,6 +20,16 @@ describe("local SQLite demonstration mode", () => {
     expect(ignore).toContain("data/*.sqlite");
   });
 
+  it("ships a persistent Docker presentation profile without embedded credentials", () => {
+    const dockerfile = readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
+    const compose = readFileSync(new URL("../deploy/docker-compose.demo.yml", import.meta.url), "utf8");
+    expect(dockerfile).toContain('VOLUME ["/app/data"]');
+    expect(dockerfile).toContain("/api/health");
+    expect(compose).toContain("domel-demo-data:/app/data");
+    expect(compose).toContain("${DEEPSEEK_API_KEY:-}");
+    expect(compose).not.toMatch(/sk-[a-z0-9]{16,}/i);
+  });
+
   it("accepts the project database UUID format for saved demo scenarios", () => {
     const parsed = assumptionAnalysisRequestSchema.safeParse({
       text: "Demand is expected to grow 12% during 2027 based on the named market report.",
