@@ -2,6 +2,7 @@ import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
 import { canAny, type AppRole } from "@/domain/permissions/policy";
 import { isDemoMode } from "@/server/demo/config";
+import { LanguageToggle } from "@/components/i18n/language-toggle";
 
 const ROLE_LABELS: Record<AppRole, string> = {
   sales: "Sales Coordinator",
@@ -40,6 +41,7 @@ export function WorkspaceHeader({
         {adminAccess ? <Link aria-current={active === "admin" ? "page" : undefined} href="/admin">⚙ Administration</Link> : null}
       </nav>
       <div className="header-actions">
+        <LanguageToggle />
         <span className="environment-label"><i className="dot" /> {demoMode ? "LOCAL SQLITE DEMO" : "FORMAL PROJECT"}</span>
         <details className="account-menu">
           <summary className="account"><span className="avatar">{initials}</span><span>{displayName}<small>{ROLE_LABELS[role]} ▾</small></span></summary>

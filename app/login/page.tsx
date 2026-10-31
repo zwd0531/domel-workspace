@@ -1,4 +1,5 @@
 import { signIn } from "@/app/actions/auth";
+import { LanguageToggle } from "@/components/i18n/language-toggle";
 import { AUTH_PASSWORD_MIN_LENGTH } from "@/server/auth/config";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <main className="auth-main">
+      <div className="auth-language"><LanguageToggle /></div>
       <div className="login-layout">
         <section className="login-story">
           <span className="eyebrow">DOMEL SUZHOU · EMPLOYEE WORKSPACE</span>

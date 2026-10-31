@@ -56,6 +56,7 @@ input:disabled, select:disabled, textarea:disabled, button:disabled { cursor: no
 .panel-head { padding: 20px 22px 0; }
 .panel-head p { color: var(--muted); font-size: 11px; }
 .status-card { max-width: 920px; margin: 32px auto; padding: 32px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.status-language { display: flex; margin-bottom: 18px; justify-content: flex-end; }
 code { padding: 2px 5px; border-radius: 4px; background: var(--pale); }
 
 .site-header { display: flex; min-height: 78px; padding: 0 4%; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); background: #fff; }
@@ -68,6 +69,9 @@ code { padding: 2px 5px; border-radius: 4px; background: var(--pale); }
 .site-header nav a[aria-current="page"] { border-bottom-color: var(--blue); color: var(--blue); }
 .site-header nav span[aria-disabled="true"] { opacity: .55; }
 .header-actions { display: flex; align-items: center; gap: 12px; }
+.language-toggle { display: inline-flex; min-width: 62px; height: 34px; padding: 5px 9px; align-items: center; justify-content: center; gap: 5px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--blue); cursor: pointer; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.language-toggle:hover { background: var(--pale); }
+.auth-language { display: flex; max-width: 1080px; margin: 22px auto -28px; justify-content: flex-end; }
 .environment-label { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; letter-spacing: .07em; }
 .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 .account-menu { position: relative; }
@@ -380,6 +384,8 @@ code { padding: 2px 5px; border-radius: 4px; background: var(--pale); }
   .kpi-grid { grid-template-columns: 1fr 1fr; }
   .kpi-value { font-size: 24px; }
   .environment-label { display: none; }
+  .language-toggle { min-width: 54px; }
+  .auth-language { margin: 14px 5% 0; }
   .site-header nav { gap: 7px; }
   .site-header nav a, .site-header nav span { font-size: 9px; }
   .scope-bar .field { flex: 1 1 42%; }

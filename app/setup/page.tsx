@@ -1,15 +1,17 @@
 import Link from "next/link";
+import { LanguageToggle } from "@/components/i18n/language-toggle";
 import { isSupabaseConfigured } from "@/server/supabase/server";
 import { isDemoMode } from "@/server/demo/config";
 
 export const dynamic = "force-dynamic";
 
 export default function SetupPage() {
-  if (isDemoMode()) return <main><section className="status-card"><span className="eyebrow">LOCAL DEMONSTRATION</span><h1>SQLite demo mode is active.</h1><p>The local database is ready with fictional seed data. Formal Supabase configuration remains unchanged.</p><p><Link className="btn primary" href="/dashboard">Open the workspace</Link></p></section></main>;
+  if (isDemoMode()) return <main><section className="status-card"><div className="status-language"><LanguageToggle /></div><span className="eyebrow">LOCAL DEMONSTRATION</span><h1>SQLite demo mode is active.</h1><p>The local database is ready with fictional seed data. Formal Supabase configuration remains unchanged.</p><p><Link className="btn primary" href="/dashboard">Open the workspace</Link></p></section></main>;
   const configured = isSupabaseConfigured();
   return (
     <main>
       <section className="status-card">
+        <div className="status-language"><LanguageToggle /></div>
         <span className="eyebrow">FORMAL PROJECT SETUP</span>
         <h1>{configured ? "Authentication is configured." : "Connect the project database."}</h1>
         {configured ? (
