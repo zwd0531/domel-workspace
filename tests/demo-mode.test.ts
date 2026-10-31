@@ -22,12 +22,15 @@ describe("local SQLite demonstration mode", () => {
 
   it("ships a persistent Docker presentation profile without embedded credentials", () => {
     const dockerfile = readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
+    const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
     const compose = readFileSync(new URL("../deploy/docker-compose.demo.yml", import.meta.url), "utf8");
+    expect(dockerfile).toContain("DOMEL_STANDALONE_BUILD=true");
     expect(dockerfile).toContain('VOLUME ["/app/data"]');
     expect(dockerfile).toContain("/api/health");
     expect(compose).toContain("domel-demo-data:/app/data");
     expect(compose).toContain("${DEEPSEEK_API_KEY:-}");
     expect(compose).not.toMatch(/sk-[a-z0-9]{16,}/i);
+    expect(nextConfig).toContain('process.env.DOMEL_STANDALONE_BUILD === "true"');
   });
 
   it("accepts the project database UUID format for saved demo scenarios", () => {
