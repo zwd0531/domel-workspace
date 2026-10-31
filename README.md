@@ -115,6 +115,8 @@ The runtime database is created at `data/domel-demo.sqlite` and is excluded from
 
 For a Linux/Docker presentation server, follow `deploy/README.md`. The Compose profile mounts `/app/data` as a persistent named volume and reads DeepSeek credentials only from the runtime environment.
 
+For the formal Supabase-backed public deployment, use the GitHub + Vercel workflow in `docs/vercel-deployment.md`.
+
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key.
