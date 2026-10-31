@@ -9,6 +9,14 @@ import { AiAssumptionPanel } from "@/components/scenarios/ai-assumption-panel";
 import { EVIDENCE_TOPICS } from "@/domain/intelligence/constants";
 import { calculateScenario } from "@/domain/scenario/calculate";
 import { interpretScenario } from "@/domain/scenario/interpret";
+import {
+  applyEnvironmentPreset,
+  applyStrategyPreset,
+  buildDemandSensitivity,
+  buildStrategyComparisons,
+  type EnvironmentPreset,
+  type StrategyPreset,
+} from "@/domain/scenario/presets";
 import type { ScenarioInputs } from "@/domain/scenario/types";
 import type { ScenarioWorkspaceData } from "@/domain/scenario/workspace";
 
@@ -45,9 +53,14 @@ export function ScenarioWorkspace({
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [creatingEvidence, setCreatingEvidence] = useState(false);
+  const [environmentPreset, setEnvironmentPreset] = useState<EnvironmentPreset | "custom">("custom");
+  const [strategyPreset, setStrategyPreset] = useState<StrategyPreset | "custom">("custom");
 
   const product = data.products.find((item) => item.id === productId) ?? null;
+  const baseline = product?.baseline ?? EMPTY_INPUTS;
   const result = useMemo(() => calculateScenario(inputs), [inputs]);
+  const strategyComparisons = useMemo(() => buildStrategyComparisons(baseline, inputs), [baseline, inputs]);
+  const sensitivity = useMemo(() => buildDemandSensitivity(inputs), [inputs]);
   const linkedTopics = data.evidence.filter((item) => evidenceIds.includes(item.id)).map((item) => item.topic);
   const interpretation = useMemo(() => interpretScenario(inputs, result, linkedTopics), [inputs, result, linkedTopics]);
   const canEdit = !selected || ((selected.ownerId === data.userId || data.roles.includes("admin")) && ["draft", "rejected"].includes(selected.status));
@@ -56,6 +69,8 @@ export function ScenarioWorkspace({
     setProductId(nextProductId);
     const baseline = data.products.find((item) => item.id === nextProductId)?.baseline;
     setInputs(baseline ?? EMPTY_INPUTS);
+    setEnvironmentPreset("custom");
+    setStrategyPreset("custom");
   }
 
   function updateInput(key: keyof ScenarioInputs, value: string) {
@@ -64,6 +79,41 @@ export function ScenarioWorkspace({
     const bounded = key === "demand" ? Math.min(200, Math.max(-100, finite)) : Math.min(1_000_000_000, Math.max(0, finite));
     const normalized = key === "quantity" || key === "capacity" ? Math.round(bounded) : bounded;
     setInputs((current) => ({ ...current, [key]: normalized }));
+    setEnvironmentPreset("custom");
+    setStrategyPreset("custom");
+  }
+
+  function chooseEnvironment(preset: EnvironmentPreset) {
+    setInputs((current) => applyEnvironmentPreset(baseline, current, preset));
+    setEnvironmentPreset(preset);
+  }
+
+  function chooseStrategy(preset: StrategyPreset) {
+    setInputs((current) => applyStrategyPreset(baseline, current, preset));
+    setStrategyPreset(preset);
+  }
+
+  function exportScenario() {
+    const report = [
+      `Domel scenario: ${name}`,
+      `Product: ${product?.name ?? "Not selected"}`,
+      `Business month: ${(selected?.businessMonth ?? data.businessMonth).slice(0, 7)}`,
+      "",
+      ...INPUT_FIELDS.map((field) => `${field.label}: ${inputs[field.key]} ${field.suffix}`),
+      "",
+      `Units sold: ${result.units}`,
+      `Revenue: ${money(result.revenue)}`,
+      `Operating profit: ${money(result.operatingProfit)}`,
+      `Capacity use: ${percent(result.capacityUtilization)}`,
+      `Formula: ${result.formulaVersion}`,
+      `Rationale: ${rationale || "Not provided"}`,
+    ].join("\r\n");
+    const url = URL.createObjectURL(new Blob([report], { type: "text/plain;charset=utf-8" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `domel-scenario-${new Date().toISOString().slice(0, 10)}.txt`;
+    anchor.click();
+    URL.revokeObjectURL(url);
   }
 
   async function saveScenario() {
@@ -128,8 +178,8 @@ export function ScenarioWorkspace({
   return (
     <main id="main" className="scenario-main">
       <div className="page-head">
-        <div><span className="eyebrow">02 / DECISION MODELLING</span><h1>Scenario planning workspace</h1><p className="lead">Test a controlled assumption, connect supporting evidence and preserve a server-recalculated snapshot.</p></div>
-        <div className="button-row"><Link className="btn" href="/scenarios">＋ New scenario</Link><button className="btn primary" type="button" onClick={saveScenario} disabled={!canEdit || saving || !productId || !name.trim()}>{saving ? "Saving…" : selected ? "Save new snapshot" : "Create scenario"}</button></div>
+        <div><span className="eyebrow">02 / SCENARIO PLANNING</span><h1>Explore what happens next.</h1><p className="lead">Turn database baselines and market evidence into comparable, transparent decisions.</p></div>
+        <div className="button-row"><button className="btn" type="button" onClick={exportScenario} disabled={!productId}>⇩ Export report</button><Link className="btn" href="/scenarios">＋ New scenario</Link><button className="btn primary" type="button" onClick={saveScenario} disabled={!canEdit || saving || !productId || !name.trim()}>{saving ? "Saving…" : selected ? "Save new snapshot" : "Create scenario"}</button></div>
       </div>
 
       {message ? <div className={`scenario-message ${message.tone}`} role="status">{message.text}</div> : null}
@@ -150,14 +200,19 @@ export function ScenarioWorkspace({
 
         <section className="scenario-editor">
           <section className="panel panel-pad">
-            <div className="row"><div><h2>Assumptions</h2><p className="small muted">The current database facts provide the baseline; only this scenario copy changes.</p></div><span className="badge blue">Formula 2.0.0</span></div>
+            <div className="row"><div><h2>Adjust assumptions</h2><p className="small muted">Start from the database baseline, then use a preset or tune the inputs directly.</p></div><span className="badge blue">Formula 2.0.0</span></div>
             <div className="scenario-meta-grid">
               <label className="field"><span>Scenario name</span><input value={name} maxLength={120} onChange={(event) => setName(event.target.value)} disabled={!canEdit} /></label>
               <label className="field"><span>Product</span><select value={productId} onChange={(event) => chooseProduct(event.target.value)} disabled={!canEdit || Boolean(selected)}>{data.products.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.code}</option>)}</select></label>
               <div className="field"><span>Business month</span><div className="read-only-value">{(selected?.businessMonth ?? data.businessMonth).slice(0, 7)}</div></div>
             </div>
             {!product?.baseline ? <div className="notice"><span>ⓘ</span><span>This product has no complete sales, capacity and cost baseline for the selected month.</span></div> : null}
-            <div className="scenario-input-grid">{INPUT_FIELDS.map((field) => <label className="field" key={field.key}><span>{field.label}</span><div className="number-field"><input type="number" min={field.key === "demand" ? -100 : 0} max={field.key === "demand" ? 200 : 1_000_000_000} step={field.step ?? 1} value={inputs[field.key]} onChange={(event) => updateInput(field.key, event.target.value)} disabled={!canEdit} /><small>{field.suffix}</small></div></label>)}</div>
+            <div className="scenario-presets">
+              <div><span>External environment</span><div className="scenario-segmented">{([['pessimistic', 'Pessimistic'], ['base', 'Base'], ['optimistic', 'Optimistic']] as const).map(([id, label]) => <button key={id} type="button" aria-pressed={environmentPreset === id} onClick={() => chooseEnvironment(id)} disabled={!canEdit}>{label}</button>)}</div></div>
+              <div><span>Business strategy</span><div className="scenario-segmented strategy">{([['hold', 'Hold steady'], ['price', 'Price −5%'], ['expand', 'Capacity +30%']] as const).map(([id, label]) => <button key={id} type="button" aria-pressed={strategyPreset === id} onClick={() => chooseStrategy(id)} disabled={!canEdit}>{label}</button>)}</div></div>
+            </div>
+            <div className="scenario-input-grid">{INPUT_FIELDS.map((field) => <label className="field scenario-input-control" key={field.key}><span>{field.label}</span><input className="scenario-range" type="range" min={rangeFor(field.key, baseline).min} max={rangeFor(field.key, baseline).max} step={field.step ?? 1} value={inputs[field.key]} onChange={(event) => updateInput(field.key, event.target.value)} disabled={!canEdit} /><div className="number-field"><input type="number" min={field.key === "demand" ? -100 : 0} max={field.key === "demand" ? 200 : 1_000_000_000} step={field.step ?? 1} value={inputs[field.key]} onChange={(event) => updateInput(field.key, event.target.value)} disabled={!canEdit} /><small>{field.suffix}</small></div></label>)}</div>
+            <details className="formula-details"><summary>Preset assumptions & transparent formulas</summary><p>Environment presets change only demand and unit cost. Strategy presets change price, capacity, fixed cost and one-time investment; they never invent a demand uplift.</p><p>Units = min(round(baseline units × (1 + demand %)), capacity). Operating profit = revenue − variable cost − fixed cost. One-time investment is shown separately.</p></details>
             <label className="field scenario-rationale"><span>Rationale and conditions</span><textarea value={rationale} maxLength={2000} rows={4} onChange={(event) => setRationale(event.target.value)} placeholder="Explain why these assumptions are reasonable and what would trigger a review." disabled={!canEdit} /></label>
           </section>
 
@@ -173,6 +228,7 @@ export function ScenarioWorkspace({
 
           <section className="panel panel-pad scenario-results">
             <div className="row"><div><h2>Calculated outcome</h2><p className="small muted">Live browser preview. The database recalculates the same inputs before storage.</p></div><span className="badge green">Server verified on save</span></div>
+            <div className="scenario-profit-hero"><div><span>Estimated operating profit</span><strong>{money(result.operatingProfit)}</strong><small>per month · before one-time investment</small></div><div className="profit-meter" aria-label={`Capacity use ${percent(result.capacityUtilization)}`}><span style={{ width: `${Math.min(100, Math.max(0, (result.capacityUtilization ?? 0) * 100))}%` }} /></div><p><strong>{percent(result.capacityUtilization)}</strong> capacity used · {number(result.unservedDemand)} units unserved</p></div>
             <div className="result-grid">
               <Result label="Units sold" value={number(result.units)} />
               <Result label="Revenue" value={money(result.revenue)} />
@@ -186,6 +242,16 @@ export function ScenarioWorkspace({
             <div className="interpretation-grid"><Interpretation title="Rule-based risks" items={interpretation.risks} empty="No formula risk rule is currently triggered." /><Interpretation title="Evidence gaps" items={interpretation.evidenceGaps} empty="No evidence gap rule is currently triggered." /></div>
           </section>
 
+          <section className="panel panel-pad scenario-visual-panel">
+            <div className="row"><div><h2>Compare business strategies</h2><p className="small muted">Same demand and cost assumptions; only the strategy inputs change.</p></div><span className="badge blue">Live comparison</span></div>
+            <StrategyComparisonTable comparisons={strategyComparisons} active={strategyPreset} />
+          </section>
+
+          <section className="panel panel-pad scenario-visual-panel">
+            <div className="row"><div><h2>Demand sensitivity</h2><p className="small muted">Operating profit across demand assumptions with current price, costs and capacity held constant.</p></div><span className="badge">Current {inputs.demand > 0 ? "+" : ""}{inputs.demand}%</span></div>
+            <SensitivityChart points={sensitivity} activeDemand={inputs.demand} />
+          </section>
+
           <EvidencePanel data={data} evidenceIds={evidenceIds} setEvidenceIds={setEvidenceIds} canEdit={canEdit} createEvidence={createEvidence} creating={creatingEvidence} />
           <DecisionWorkflow data={data} scenario={selected} />
         </section>
@@ -197,6 +263,41 @@ export function ScenarioWorkspace({
       </div>
     </main>
   );
+}
+
+function StrategyComparisonTable({
+  comparisons,
+  active,
+}: {
+  comparisons: ReturnType<typeof buildStrategyComparisons>;
+  active: StrategyPreset | "custom";
+}) {
+  const best = Math.max(...comparisons.map((item) => item.result.operatingProfit));
+  return <div className="strategy-comparison"><div className="strategy-comparison-bars">{comparisons.map((item) => {
+    const relative = best === 0 ? 0 : Math.max(8, Math.abs(item.result.operatingProfit / best) * 100);
+    return <article key={item.id} className={active === item.id ? "active" : ""}><div className="row"><strong>{item.label}</strong>{item.result.operatingProfit === best ? <span className="badge green">Highest profit</span> : null}</div><div className="strategy-profit"><span style={{ width: `${Math.min(100, relative)}%` }} /></div><strong>{money(item.result.operatingProfit)}</strong><small>{number(item.result.units)} units · {percent(item.result.capacityUtilization)} capacity · {money(item.inputs.capex)} investment</small></article>;
+  })}</div><div className="table-wrap"><table className="data-table scenario-compare-table"><thead><tr><th>Strategy</th><th>Price</th><th>Capacity</th><th>Sales</th><th>Operating profit</th><th>Investment</th></tr></thead><tbody>{comparisons.map((item) => <tr key={item.id}><td><strong>{item.label}</strong></td><td>{money(item.inputs.price)}</td><td>{number(item.inputs.capacity)}</td><td>{number(item.result.units)}</td><td>{money(item.result.operatingProfit)}</td><td>{money(item.inputs.capex)}</td></tr>)}</tbody></table></div></div>;
+}
+
+function SensitivityChart({ points, activeDemand }: { points: ReturnType<typeof buildDemandSensitivity>; activeDemand: number }) {
+  const width = 720;
+  const height = 240;
+  const padX = 52;
+  const padY = 28;
+  const demands = points.map((point) => point.demand);
+  const profits = points.map((point) => point.operatingProfit);
+  const minX = Math.min(...demands);
+  const maxX = Math.max(...demands);
+  const rawMinY = Math.min(0, ...profits);
+  const rawMaxY = Math.max(0, ...profits);
+  const ySpan = Math.max(1, rawMaxY - rawMinY);
+  const x = (value: number) => padX + ((value - minX) / Math.max(1, maxX - minX)) * (width - padX * 2);
+  const y = (value: number) => height - padY - ((value - rawMinY) / ySpan) * (height - padY * 2);
+  const polyline = points.map((point) => `${x(point.demand)},${y(point.operatingProfit)}`).join(" ");
+  return <div className="sensitivity-chart"><svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Demand sensitivity line chart"><line className="chart-grid" x1={padX} x2={width - padX} y1={padY} y2={padY} /><line className="chart-grid" x1={padX} x2={width - padX} y1={height / 2} y2={height / 2} /><line className="chart-grid" x1={padX} x2={width - padX} y1={height - padY} y2={height - padY} />{rawMinY < 0 ? <line className="chart-zero" x1={padX} x2={width - padX} y1={y(0)} y2={y(0)} /> : null}<polyline className="chart-line" points={polyline} />{points.map((point) => {
+    const active = point.demand === activeDemand;
+    return <g key={point.demand} className={active ? "chart-point active" : "chart-point"}><circle cx={x(point.demand)} cy={y(point.operatingProfit)} r={active ? 7 : 4} /><text x={x(point.demand)} y={height - 7} textAnchor="middle">{point.demand > 0 ? "+" : ""}{point.demand}%</text>{active ? <text className="chart-value" x={x(point.demand)} y={Math.max(16, y(point.operatingProfit) - 13)} textAnchor="middle">{money(point.operatingProfit)}</text> : null}</g>;
+  })}<text className="chart-axis-label" x={8} y={18}>PROFIT</text><text className="chart-axis-label" x={width - 8} y={height - 7} textAnchor="end">DEMAND</text></svg><div className="chart-legend"><span><i className="legend-line" /> Operating profit</span><span><i className="legend-dot" /> Current assumption</span></div></div>;
 }
 
 function Result({ label, value, emphasis = false }: { label: string; value: string; emphasis?: boolean }) {
@@ -231,3 +332,11 @@ function EvidencePanel({
 function number(value: number) { return new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 }).format(value); }
 function money(value: number) { return new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value); }
 function percent(value: number | null) { return value === null ? "N/A" : `${(value * 100).toFixed(1)}%`; }
+
+function rangeFor(key: keyof ScenarioInputs, baseline: ScenarioInputs) {
+  if (key === "demand") return { min: -50, max: 100 };
+  const value = baseline[key];
+  if (key === "price" || key === "cost") return { min: 0, max: Math.max(10, Math.ceil(value * 2)) };
+  if (key === "capex") return { min: 0, max: Math.max(100_000, Math.ceil(value * 2)) };
+  return { min: 0, max: Math.max(100, Math.ceil(value * 2)) };
+}

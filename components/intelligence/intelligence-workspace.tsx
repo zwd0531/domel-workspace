@@ -165,6 +165,8 @@ export function IntelligenceWorkspace({ data }: { data: IntelligenceData }) {
         <Summary label="Linked in visible scenarios" value={linkedCount} />
       </section>
 
+      <IntelligenceVisualOverview records={visible} />
+
       <section className="panel panel-pad intelligence-controls" aria-label="Evidence filters">
         <label className="field intelligence-search"><span>Search evidence</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search titles, sources, facts or limitations…" /></label>
         <label className="field"><span>Topic</span><select value={topic} onChange={(event) => setTopic(event.target.value)}><option>All</option>{EVIDENCE_TOPICS.map((item) => <option key={item}>{item}</option>)}</select></label>
@@ -193,6 +195,30 @@ export function IntelligenceWorkspace({ data }: { data: IntelligenceData }) {
     </main>
   );
 }
+
+function IntelligenceVisualOverview({ records }: { records: IntelligenceEvidence[] }) {
+  const total = Math.max(1, records.length);
+  const statusCounts = EVIDENCE_STATUSES.map((item) => ({ id: item, label: EVIDENCE_STATUS_LABELS[item], count: records.filter((record) => record.verificationStatus === item).length }));
+  const statusColours: Record<EvidenceStatus, string> = { source_reviewed: "#2d8b68", needs_follow_up: "#d19b4e", unverified: "#8da3b5", rejected: "#c95c53" };
+  let cursor = 0;
+  const statusStops = statusCounts.map((item) => {
+    const start = cursor;
+    cursor += (item.count / total) * 100;
+    return `${statusColours[item.id]} ${start}% ${cursor}%`;
+  }).join(", ");
+  const topicCounts = EVIDENCE_TOPICS.map((item) => ({ label: item, count: records.filter((record) => record.topic === item).length })).filter((item) => item.count > 0);
+  const months = new Map<string, number>();
+  records.forEach((record) => {
+    const key = (record.publishedOn ?? record.capturedOn).slice(0, 7);
+    months.set(key, (months.get(key) ?? 0) + 1);
+  });
+  const timeline = [...months.entries()].sort(([left], [right]) => left.localeCompare(right)).slice(-8);
+  const maxMonth = Math.max(1, ...timeline.map(([, count]) => count));
+
+  return <section className="intelligence-visuals" aria-label="Evidence visual overview"><article className="panel panel-pad intel-visual-card"><div><span className="eyebrow">TOPIC MIX</span><h2>What the evidence covers</h2><p className="small muted">Share of records in the current filtered view, not market share.</p></div><div className="topic-stack" aria-label="Topic distribution">{topicCounts.length ? topicCounts.map((item, index) => <span key={item.label} style={{ width: `${(item.count / total) * 100}%`, background: TOPIC_COLOURS[index % TOPIC_COLOURS.length] }} title={`${item.label}: ${item.count}`} />) : <span className="empty-stack" />}</div><div className="topic-legend">{topicCounts.map((item, index) => <span key={item.label}><i style={{ background: TOPIC_COLOURS[index % TOPIC_COLOURS.length] }} />{item.label}<strong>{item.count}</strong></span>)}</div></article><article className="panel panel-pad intel-status-card"><div><span className="eyebrow">VERIFICATION</span><h2>Review readiness</h2></div><div className="status-visual"><div className="status-donut" style={{ background: records.length ? `conic-gradient(${statusStops})` : "#e8edf1" }}><span><strong>{records.filter((record) => record.verificationStatus === "source_reviewed").length}</strong><small>reviewed</small></span></div><div className="status-legend">{statusCounts.map((item) => <span key={item.id}><i style={{ background: statusColours[item.id] }} />{item.label}<strong>{item.count}</strong></span>)}</div></div></article><article className="panel panel-pad intel-timeline-card"><div><span className="eyebrow">PUBLICATION COVERAGE</span><h2>Evidence over time</h2><p className="small muted">Published month where available; otherwise capture month.</p></div><div className="intel-timeline">{timeline.length ? timeline.map(([month, count]) => <div key={month}><span style={{ height: `${Math.max(8, (count / maxMonth) * 100)}%` }}><i>{count}</i></span><small>{month.slice(2)}</small></div>) : <p className="small muted">No dated evidence in this view.</p>}</div></article></section>;
+}
+
+const TOPIC_COLOURS = ["#145c91", "#2d8b68", "#7f6bb2", "#d19b4e", "#4a8fa7", "#c95c53", "#5f7c93", "#79a85b", "#8a6c52"];
 
 function ResearchResult({
   result,
