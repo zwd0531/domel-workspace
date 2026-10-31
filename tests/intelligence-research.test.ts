@@ -31,6 +31,8 @@ describe("Industry Intelligence research agent", () => {
     expect(provider).toContain("/v1/tools/search");
     expect(provider).toContain("/chat/completions");
     expect(provider).toContain('type: "json_object"');
+    expect(provider).toContain("validSourceIndexes.has(finding.sourceIndex)");
+    expect(provider).toContain("max_tokens: 3_600");
     expect(provider).not.toMatch(/sk-[a-z0-9]{16,}/i);
   });
 

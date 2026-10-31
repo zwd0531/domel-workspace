@@ -38,7 +38,7 @@ const synthesisSchema = z.object({
     limitations: z.string().min(1).max(2_000),
     topic: z.enum(EVIDENCE_TOPICS),
     confidence: z.enum(["low", "medium", "high"]),
-  })).min(1).max(6),
+  })).min(1).max(4),
   gaps: z.array(z.string().min(1).max(500)).max(6),
 });
 
@@ -92,7 +92,8 @@ export async function runIntelligenceResearch(brief: string): Promise<Intelligen
       findings,
       sources: sources.map(toPublicSource),
     });
-  } catch {
+  } catch (error) {
+    console.warn("DeepSeek structured research synthesis was unavailable:", safeErrorMessage(error));
     return buildSearchOnlyDigest(
       brief,
       searchQuery,
@@ -138,7 +139,7 @@ async function synthesizeWithDeepSeek(key: string, model: string, brief: string,
     publishedOn: source.publishedOn,
     authority: source.authority,
     relevance: source.relevance,
-    text: (source.summary || source.snippet || source.content).slice(0, 5_000),
+    text: (source.summary || source.snippet || source.content).slice(0, 3_000),
   }));
   const response = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
     method: "POST",
@@ -146,12 +147,12 @@ async function synthesizeWithDeepSeek(key: string, model: string, brief: string,
     body: JSON.stringify({
       model,
       thinking: { type: "disabled" },
-      max_tokens: 2_500,
+      max_tokens: 3_600,
       response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: `You are an industry-intelligence analyst. Return JSON only. Use only the supplied sources; never invent a URL, publisher, date, number or claim. Keep source fact separate from interpretation and limitations. Every finding must cite exactly one sourceIndex. Prefer decision-relevant, non-duplicative findings. Allowed topics: ${EVIDENCE_TOPICS.join(", ")}. Output this JSON shape: {"title":"...","summary":"...","findings":[{"sourceIndex":1,"title":"...","fact":"...","interpretation":"...","limitations":"...","topic":"Demand","confidence":"medium"}],"gaps":["..."]}.`,
+          content: `You are an industry-intelligence analyst. Return JSON only. Use only the supplied sources; never invent a URL, publisher, date, number or claim. Keep source fact separate from interpretation and limitations. Return 2 to 4 concise, non-duplicative findings. Every finding must cite exactly one sourceIndex from the supplied packet. Keep each fact under 160 words and each interpretation or limitation under 100 words. Allowed topics: ${EVIDENCE_TOPICS.join(", ")}. Output this JSON shape: {"title":"...","summary":"...","findings":[{"sourceIndex":1,"title":"...","fact":"...","interpretation":"...","limitations":"...","topic":"Demand","confidence":"medium"}],"gaps":["..."]}.`,
         },
         { role: "user", content: JSON.stringify({ brief, sources: sourcePacket }) },
       ],
@@ -163,10 +164,13 @@ async function synthesizeWithDeepSeek(key: string, model: string, brief: string,
   const content = payload.choices?.[0]?.message?.content;
   if (!content) throw new Error("DeepSeek returned no synthesis.");
   const raw = rawSynthesisSchema.parse(JSON.parse(stripCodeFence(content)));
+  const validSourceIndexes = new Set(sources.map((source) => source.index));
+  const validFindings = raw.findings.filter((finding) => validSourceIndexes.has(finding.sourceIndex)).slice(0, 4);
+  if (!validFindings.length) throw new Error("DeepSeek synthesis did not cite a supplied source index.");
   return synthesisSchema.parse({
     title: raw.title.slice(0, 180),
     summary: raw.summary.slice(0, 3_000),
-    findings: raw.findings.slice(0, 6).map((finding) => ({
+    findings: validFindings.map((finding) => ({
       sourceIndex: finding.sourceIndex,
       title: finding.title.slice(0, 180),
       fact: finding.fact.slice(0, 2_000),
@@ -191,6 +195,11 @@ function normalizeDate(value: string | null): string | null {
 
 function stripCodeFence(value: string) {
   return value.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+}
+
+function safeErrorMessage(error: unknown) {
+  if (!(error instanceof Error)) return "Unknown error";
+  return `${error.name}: ${error.message}`.slice(0, 300);
 }
 
 export class ResearchAgentError extends Error {
