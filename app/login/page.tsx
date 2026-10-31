@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { signIn } from "@/app/actions/auth";
 import { LanguageToggle } from "@/components/i18n/language-toggle";
 import { AUTH_PASSWORD_MIN_LENGTH } from "@/server/auth/config";
@@ -22,6 +23,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <div className="auth-language"><LanguageToggle /></div>
       <div className="login-layout">
         <section className="login-story">
+          <Image className="login-brand-logo" src="/domel-logo.png" alt="Domel" width={1800} height={578} priority />
           <span className="eyebrow">DOMEL SUZHOU · EMPLOYEE WORKSPACE</span>
           <h1>
             One workspace.

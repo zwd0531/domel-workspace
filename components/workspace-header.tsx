@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { signOut } from "@/app/actions/auth";
 import { canAny, type AppRole } from "@/domain/permissions/policy";
 import { isDemoMode } from "@/server/demo/config";
@@ -33,7 +34,9 @@ export function WorkspaceHeader({
   const adminAccess = canAny(roles, "users:manage");
   return (
     <header className="site-header">
-      <Link className="brand" href="/dashboard"><span className="brand-mark">✦</span><span>domel<small>DECISION WORKSPACE</small></span></Link>
+      <Link className="brand" href="/dashboard" aria-label="Domel Decision Workspace">
+        <Image className="brand-logo" src="/domel-logo.png" alt="Domel" width={1800} height={578} priority />
+      </Link>
       <nav aria-label="Main navigation">
         <Link aria-current={active === "dashboard" ? "page" : undefined} href="/dashboard">▦ Business Dashboard</Link>
         {scenarioAccess ? <Link aria-current={active === "scenarios" ? "page" : undefined} href="/scenarios">▥ Scenario Planning</Link> : <span aria-disabled="true">▥ Scenario Planning</span>}
