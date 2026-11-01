@@ -10,7 +10,7 @@ Create a private GitHub repository and push the current `main` branch. Confirm t
 
 Import the GitHub repository as a new Vercel project. Keep the detected framework as Next.js and use the repository root as the project root. The default build command (`pnpm build`) and install command are sufficient.
 
-The current Supabase project was created in the general Asia-Pacific region, which Supabase maps to Singapore. `vercel.json` therefore runs the application's dynamic functions in Vercel's Singapore region (`sin1`). Check the project's actual Region in Supabase Project Settings before changing this setting; keep the function close to the database. Static assets continue to use Vercel's global CDN.
+The Supabase project's Settings > Infrastructure screen confirms that its primary database is in South Asia (Mumbai), `ap-south-1`. `vercel.json` therefore runs the application's dynamic functions in Vercel's Mumbai region (`bom1`). Keep the function close to the database. Static assets continue to use Vercel's global CDN.
 
 ## 3. Runtime environment
 
@@ -35,6 +35,6 @@ Deploy the imported project, then verify:
 3. Dashboard, Scenario Planning, Industry Intelligence and Administration load the expected cloud records.
 4. Scenario assumption analysis reports the `deepseek` engine.
 5. One research-agent run returns cited sources and appears in research history.
-6. The `X-Vercel-Id` response header for `/api/health` ends its region chain with `sin1` before the request identifier, confirming that the function runs in Singapore.
+6. The `X-Vercel-Id` response header for `/api/health` ends its region chain with `bom1` before the request identifier, confirming that the function runs in Mumbai.
 
 Keep the first deployment private or share the URL only with intended reviewers until real operational data and role-boundary UAT are approved.
