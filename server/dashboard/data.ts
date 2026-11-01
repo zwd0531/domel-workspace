@@ -35,13 +35,15 @@ export async function loadDashboardData(
   const databaseMonth = `${month}-01`;
   const supabase = await createSupabaseServerClient();
 
-  const [profileResult, productResult] = await Promise.all([
+  const [profileResult, productResult, workResult] = await Promise.all([
     supabase.from("profiles").select("display_name").eq("id", auth.userId).single(),
     supabase.from("products").select("id,code,name,family,application,owner_label").eq("active", true).order("name"),
+    supabase.from("work_items").select("id,product_id,title,action,priority,due_at,status").eq("assigned_role", role).order("due_at"),
   ]);
 
   if (profileResult.error) throw new Error(`Unable to load profile: ${profileResult.error.message}`);
   if (productResult.error) throw new Error(`Unable to load products: ${productResult.error.message}`);
+  if (workResult.error) throw new Error(`Unable to load work items: ${workResult.error.message}`);
 
   const products: DashboardProduct[] = z.array(productSchema).parse(productResult.data).map((product) => ({
     id: product.id, code: product.code, name: product.name, family: product.family,
@@ -59,13 +61,9 @@ export async function loadDashboardData(
   let factQuery = supabase.from(factTable).select(factFields).eq("month", databaseMonth);
   if (validProductId) factQuery = factQuery.eq("product_id", validProductId);
 
-  const [factResult, workResult] = await Promise.all([
-    factQuery,
-    supabase.from("work_items").select("id,product_id,title,action,priority,due_at,status").eq("assigned_role", role).order("due_at"),
-  ]);
+  const factResult = await factQuery;
 
   if (factResult.error) throw new Error(`Unable to load dashboard facts: ${factResult.error.message}`);
-  if (workResult.error) throw new Error(`Unable to load work items: ${workResult.error.message}`);
 
   const productMap = new Map(products.map((product) => [product.id, product]));
   let rows: DashboardRow[];

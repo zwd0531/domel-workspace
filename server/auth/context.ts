@@ -12,16 +12,17 @@ export async function getAuthorizationContext(): Promise<AuthorizationContext | 
   if (isDemoMode()) return { ...DEMO_AUTH_CONTEXT, roles: [...DEMO_AUTH_CONTEXT.roles] } as AuthorizationContext;
   const supabase = await createSupabaseServerClient();
   const {
-    data: { user },
+    data,
     error,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getClaims();
 
-  if (error || !user) return null;
+  const claims = data?.claims;
+  if (error || !claims?.sub) return null;
 
   const { data: rows, error: roleError } = await supabase
     .from("user_roles")
     .select("role")
-    .eq("user_id", user.id);
+    .eq("user_id", claims.sub);
 
   if (roleError) throw new Error(`Unable to load user roles: ${roleError.message}`);
 
@@ -29,5 +30,5 @@ export async function getAuthorizationContext(): Promise<AuthorizationContext | 
     .map((row) => String(row.role))
     .filter(isAppRole);
 
-  return { userId: user.id, email: user.email ?? null, roles };
+  return { userId: claims.sub, email: typeof claims.email === "string" ? claims.email : null, roles };
 }
