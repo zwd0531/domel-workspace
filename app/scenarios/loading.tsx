@@ -1,3 +1,5 @@
+import { WorkspaceLoading } from "@/components/workspace-loading";
+
 export default function ScenariosLoading() {
-  return <main><section className="status-card" role="status"><span className="eyebrow">SCENARIO PLANNING</span><h1>Loading scenarios…</h1></section></main>;
+  return <WorkspaceLoading eyebrow="SCENARIO PLANNING" title="Loading scenarios…" />;
 }
