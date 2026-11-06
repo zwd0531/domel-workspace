@@ -523,7 +523,7 @@ code { padding: 2px 5px; border-radius: 4px; background: var(--pale); }
   .role-checks { grid-template-columns: 1fr; }
   }
 
-.landing-page { max-width: none; padding: 0 5.5% 36px; background: #f7f9fb; color: var(--landing-navy); }
+.landing-page { max-width: none; padding: 0 5.5% 36px; background: linear-gradient(180deg, rgba(247,249,251,.94), rgba(247,249,251,.98)), url('/domel-industrial-bg.png') center top / cover fixed; color: var(--landing-navy); }
 .landing-header { display: flex; min-height: 82px; align-items: center; justify-content: space-between; border-bottom: 1px solid #dfe7ee; }
 .landing-brand { display: flex; align-items: center; gap: 13px; color: var(--landing-navy); font-size: 18px; font-weight: 750; }
 .landing-brand:hover { text-decoration: none; }
