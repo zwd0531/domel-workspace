@@ -1,13 +1,13 @@
 # Authentication bootstrap
 
-The application intentionally has no public sign-up or role selector.
+The application offers public email-and-password registration. New accounts receive no application role until an Administrator assigns one. See `public-registration.md` for the current signup flow and email settings.
 
 ## Initial environment
 
 1. Create a separate development or UAT Supabase project.
 2. Copy `.env.example` to `.env.local` and add the project URL and publishable key.
 3. Apply the SQL migrations in filename order.
-4. Create employee accounts through a trusted Supabase administrator surface.
+4. Create the first Administrator account through a trusted Supabase administrator surface. Subsequent users can register at `/register`.
 5. The `0002_auth_profile_trigger.sql` migration automatically creates each user's `profiles` row.
 6. Assign roles from a trusted SQL/admin session.
 

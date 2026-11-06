@@ -82,6 +82,10 @@ code { padding: 2px 5px; border-radius: 4px; background: var(--pale); }
 .language-toggle { display: inline-flex; min-width: 62px; height: 34px; padding: 5px 9px; align-items: center; justify-content: center; gap: 5px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--blue); cursor: pointer; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .language-toggle:hover { background: var(--pale); }
 .auth-language { display: flex; max-width: 1080px; margin: 22px auto -28px; justify-content: flex-end; }
+.auth-tabs { display: grid; margin-bottom: 24px; padding: 4px; grid-template-columns: 1fr 1fr; gap: 4px; border-radius: 7px; background: var(--bg); }
+.auth-tabs a { display: grid; min-height: 34px; padding: 6px 10px; place-items: center; border-radius: 5px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.auth-tabs a[aria-current="page"] { background: #fff; box-shadow: 0 1px 4px #20395716; color: var(--blue); }
+.auth-tabs a:hover { text-decoration: none; }
 .environment-label { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; letter-spacing: .07em; }
 .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 .account-menu { position: relative; }
@@ -153,6 +157,7 @@ code { padding: 2px 5px; border-radius: 4px; background: var(--pale); }
 .auth-note { margin: 18px 0 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
 .auth-message { padding: 10px 12px; border-radius: 6px; font-size: 12px; }
 .auth-message.error { background: #fff0ee; color: var(--red); }
+.auth-message.ok { background: #e8f4ef; color: var(--green); }
 
 .modal-backdrop { position: fixed; z-index: 30; inset: 0; display: grid; padding: 20px; place-items: center; background: #08243c66; backdrop-filter: blur(3px); }
 .record-modal { width: min(680px, 100%); max-height: 88vh; overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 20px 100px #102b4b33; }

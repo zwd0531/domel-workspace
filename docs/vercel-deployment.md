@@ -37,4 +37,6 @@ Deploy the imported project, then verify:
 5. One research-agent run returns cited sources and appears in research history.
 6. The `X-Vercel-Id` response header for `/api/health` ends its region chain with `bom1` before the request identifier, confirming that the function runs in Mumbai.
 
+For public registration, configure the Supabase Site URL and confirmation redirect described in `public-registration.md`. Verify a new email account and assign its role through `/admin` before sharing the registration link widely.
+
 Keep the first deployment private or share the URL only with intended reviewers until real operational data and role-boundary UAT are approved.

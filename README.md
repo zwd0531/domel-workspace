@@ -18,7 +18,7 @@ This directory is the formal project foundation for the existing offline Feature
 ## Second milestone completed in source
 
 - formal email/password login using Supabase Auth cookies;
-- no public registration or role selection on the login page;
+- public email-and-password registration with Supabase email confirmation and administrator-assigned roles;
 - Next.js Proxy session refresh with secure authorization repeated in the data layer;
 - database-backed Sales, Production Planner and Quality Engineer dashboards;
 - role-specific KPIs, product records, work queues, filters and CSV export;
@@ -116,6 +116,8 @@ The runtime database is created at `data/domel-demo.sqlite` and is excluded from
 For a Linux/Docker presentation server, follow `deploy/README.md`. The Compose profile mounts `/app/data` as a persistent named volume and reads DeepSeek credentials only from the runtime environment.
 
 For the formal Supabase-backed public deployment, use the GitHub + Vercel workflow in `docs/vercel-deployment.md`.
+
+Public account registration and its Supabase email settings are documented in `docs/public-registration.md`.
 
 ## Local setup
 

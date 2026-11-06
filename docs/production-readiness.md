@@ -13,6 +13,7 @@ The source project can be built without a database. A production or UAT acceptan
 ## Required UAT evidence
 
 - Authentication: successful login, invalid login and sign-out.
+- Public registration: new email account, confirmation link, profile creation, access-pending state and Administrator role assignment.
 - Role boundaries: one account for each operational role plus two different decision-authorized accounts.
 - Decision workflow: complete every check in `decision-workflow-uat.md`.
 - Administration: prove non-admin denial for `/admin`, import preview and commit APIs, and role mutation.

@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isDemoMode } from "@/server/demo/config";
 
-const PUBLIC_PATHS = new Set(["/login", "/setup", "/api/health"]);
+const PUBLIC_PATHS = new Set(["/login", "/register", "/setup", "/api/health"]);
 
 export async function updateSession(request: NextRequest) {
   if (isDemoMode()) return NextResponse.next({ request });
@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (signedIn && path === "/login") {
+  if (signedIn && (path === "/login" || path === "/register")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

@@ -1,4 +1,5 @@
-import Image from "next/image";
+import { AuthStory } from "@/components/auth/auth-story";
+import { AuthTabs } from "@/components/auth/auth-tabs";
 import { signIn } from "@/app/actions/auth";
 import { LanguageToggle } from "@/components/i18n/language-toggle";
 import { AUTH_PASSWORD_MIN_LENGTH } from "@/server/auth/config";
@@ -6,12 +7,13 @@ import { AUTH_PASSWORD_MIN_LENGTH } from "@/server/auth/config";
 export const dynamic = "force-dynamic";
 
 type LoginPageProps = {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: Promise<{ error?: string; next?: string; confirmed?: string }>;
 };
 
 const ERROR_MESSAGES: Record<string, string> = {
   "invalid-form": `Enter a valid work email and a password of at least ${AUTH_PASSWORD_MIN_LENGTH} characters.`,
   "invalid-credentials": "The email or password is incorrect, or this account is not active.",
+  "email-not-confirmed": "Confirm your email using the link we sent, then sign in.",
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -22,25 +24,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <main className="auth-main">
       <div className="auth-language"><LanguageToggle /></div>
       <div className="login-layout">
-        <section className="login-story">
-          <Image className="login-brand-logo" src="/domel-logo.png" alt="Domel" width={1800} height={578} priority />
-          <span className="eyebrow">DOMEL SUZHOU · EMPLOYEE WORKSPACE</span>
-          <h1>
-            One workspace.
-            <br />Three employee views.
-          </h1>
-          <p className="lead">
-            Explore the same household vacuum product records through the information each role needs.
-          </p>
-          <LoginFeature number="01" title="Sales Coordinator" description="Orders, prices and customer shipments" />
-          <LoginFeature number="02" title="Production Planner" description="Plans, output and delivery performance" />
-          <LoginFeature number="03" title="Quality Engineer" description="Testing, defects and product risks" />
-        </section>
+        <AuthStory />
 
         <section className="panel login-form">
+          <AuthTabs active="login" />
           <span className="eyebrow">EMPLOYEE WORKSPACE</span>
           <h2>Log in to your view</h2>
           <p className="muted small">Your role is assigned by an administrator.</p>
+          {params.confirmed === "1" ? <p className="auth-message ok" role="status">Email confirmed. Sign in with the password you created.</p> : null}
           {errorMessage ? <p className="auth-message error" role="alert">{errorMessage}</p> : null}
           <form action={signIn}>
             <input type="hidden" name="next" value={params.next ?? "/dashboard"} />
@@ -62,14 +53,5 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </section>
       </div>
     </main>
-  );
-}
-
-function LoginFeature({ number, title, description }: { number: string; title: string; description: string }) {
-  return (
-    <div className="login-feature">
-      <span>{number}</span>
-      <div><strong>{title}</strong><p>{description}</p></div>
-    </div>
   );
 }
