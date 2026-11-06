@@ -61,4 +61,9 @@ describe("public registration", () => {
     mocks.signUp.mockResolvedValue({ data: { user: { id: "new-user" }, session: { access_token: "test" } }, error: null });
     await expect(signUp(registration())).rejects.toThrow("REDIRECT:/access-pending");
   });
+
+  it("explains when the default mailer rejects an external address", async () => {
+    mocks.signUp.mockResolvedValue({ data: { user: null, session: null }, error: { code: "email_address_not_authorized" } });
+    await expect(signUp(registration())).rejects.toThrow("REDIRECT:/register?error=email-not-authorized");
+  });
 });

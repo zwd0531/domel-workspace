@@ -72,6 +72,7 @@ export async function signUp(formData: FormData) {
   });
 
   if (error?.status === 429 || error?.code === "over_email_send_rate_limit") redirect("/register?error=rate-limited");
+  if (error?.code === "email_address_not_authorized") redirect("/register?error=email-not-authorized");
   if (error || !data.user) redirect("/register?error=signup-failed");
   if (data.session) redirect("/access-pending");
   redirect("/register?status=check-email");

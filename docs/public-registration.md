@@ -14,7 +14,7 @@ In Authentication > Providers > Email, enable email signup and keep Confirm emai
 
 The default Supabase confirmation template can stay in place. After verification it redirects to Domel's login page, where the visitor signs in normally. No custom template or service-role key is needed.
 
-Supabase's default email sender is rate limited and intended for small tests. Configure a custom SMTP provider before inviting larger groups of real users. Keep the confirmation URL and sender settings in the Supabase dashboard; they are not stored in this repository.
+Supabase's built-in email sender only delivers to addresses belonging to the project's organization team and is limited to 2 emails per hour. It cannot complete confirmation for arbitrary public users. **Enable custom SMTP (or a Send Email Auth Hook) before inviting anyone outside the Supabase team.** The sign-up form reports an explicit error when Supabase rejects an unauthorized recipient. Keep SMTP credentials in the Supabase dashboard, never in this repository.
 
 ## Acceptance check
 

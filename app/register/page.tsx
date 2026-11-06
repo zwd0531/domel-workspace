@@ -15,6 +15,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   "invalid-form": "Enter your name, a valid email and a password of at least 8 characters.",
   "password-mismatch": "The passwords do not match.",
   "rate-limited": "Too many registration attempts. Please try again later.",
+  "email-not-authorized": "Confirmation email could not be sent to this address. Please contact the administrator.",
   "signup-failed": "We could not create your account. Please try again later.",
 };
 
