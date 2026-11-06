@@ -16,6 +16,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   "password-mismatch": "The passwords do not match.",
   "rate-limited": "Too many registration attempts. Please try again later.",
   "email-not-authorized": "Confirmation email could not be sent to this address. Please contact the administrator.",
+  "already-registered": "An account with this email already exists. Sign in instead.",
   "signup-failed": "We could not create your account. Please try again later.",
 };
 
@@ -32,7 +33,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           <AuthTabs active="register" />
           <span className="eyebrow">EMPLOYEE WORKSPACE</span>
           <h2>Create your account</h2>
-          <p className="muted small">Confirm your email first. An administrator will then assign your workspace role.</p>
+          <p className="muted small">Create a Domel account with your email. An administrator will then assign your workspace role.</p>
           {params.status === "check-email" ? <div className="auth-message ok" role="status"><p>Check your inbox and spam folder for the confirmation link. After confirming, sign in and wait for a role assignment.</p><Link href="/register">Use another email</Link></div> : null}
           {errorMessage ? <p className="auth-message error" role="alert">{errorMessage}</p> : null}
           {params.status !== "check-email" ? <form action={signUp}>

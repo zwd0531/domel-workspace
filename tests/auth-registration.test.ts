@@ -66,4 +66,9 @@ describe("public registration", () => {
     mocks.signUp.mockResolvedValue({ data: { user: null, session: null }, error: { code: "email_address_not_authorized" } });
     await expect(signUp(registration())).rejects.toThrow("REDIRECT:/register?error=email-not-authorized");
   });
+
+  it("directs an existing account to sign in", async () => {
+    mocks.signUp.mockResolvedValue({ data: { user: null, session: null }, error: { code: "user_already_exists" } });
+    await expect(signUp(registration())).rejects.toThrow("REDIRECT:/register?error=already-registered");
+  });
 });

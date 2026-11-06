@@ -16,6 +16,10 @@ The default Supabase confirmation template can stay in place. After verification
 
 Supabase's built-in email sender only delivers to addresses belonging to the project's organization team and is limited to 2 emails per hour. It cannot complete confirmation for arbitrary public users. **Enable custom SMTP (or a Send Email Auth Hook) before inviting anyone outside the Supabase team.** The sign-up form reports an explicit error when Supabase rejects an unauthorized recipient. Keep SMTP credentials in the Supabase dashboard, never in this repository.
 
+### No-domain demo option
+
+If external users must register before an SMTP sender is available, an Administrator may turn off **Authentication > Sign In / Providers > Confirm email** in Supabase. The sign-up action already handles the resulting immediate session and sends a new, roleless user to `/access-pending`; no email is sent and no custom domain is needed. This setting means Supabase treats any submitted address as confirmed even when the registrant does not control it. Keep role assignment Administrator-only and use this mode only for a limited demonstration. Re-enable confirmation after SMTP is available; earlier accounts are not retroactively verified.
+
 ## Acceptance check
 
 Use an email inbox you control. Register from `/register`, verify that the confirmation email arrives, follow its link, sign in, and confirm `/access-pending` appears. As an Administrator, find the new profile under `/admin`, assign a role, then refresh `/dashboard` as the new user and confirm only the assigned view is available. An invalid form, mismatched passwords and an unconfirmed email should show clear messages. Do not reuse the Administrator account as the registration test.
