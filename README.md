@@ -143,11 +143,11 @@ Open `/api/health` to verify the running service and formula version.
 ## Security rules
 
 - Do not put service-role keys in browser code or commit them to the repository.
-- Do not allow public self-registration to assign application roles.
+- Do not accept role choices from public registration. The database trigger assigns only the three fixed operational demo roles; Decision Owner and Administrator remain controlled by existing admin workflows.
 - Financial fields live in a separate table and require `decision_owner` or `admin` access.
 - Scenario results submitted by a browser are never authoritative; the server recalculates them.
 - The permission matrix and data definitions must be reviewed with the business owner before real data is imported.
 
 ## Next implementation slice
 
-Configure the simple Supabase environment, apply migrations `0001` through `0010`, seed demonstration data and run the first authenticated end-to-end UAT path.
+Configure the simple Supabase environment, apply migrations `0001` through `0011`, seed demonstration data and run the first authenticated end-to-end UAT path.

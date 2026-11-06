@@ -30,14 +30,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <AuthTabs active="login" />
           <span className="eyebrow">EMPLOYEE WORKSPACE</span>
           <h2>Log in to your view</h2>
-          <p className="muted small">Your role is assigned by an administrator.</p>
+          <p className="muted small">Your workspace views follow your assigned roles.</p>
           {params.confirmed === "1" ? <p className="auth-message ok" role="status">Email confirmed. Sign in with the password you created.</p> : null}
           {errorMessage ? <p className="auth-message error" role="alert">{errorMessage}</p> : null}
           <form action={signIn}>
             <input type="hidden" name="next" value={params.next ?? "/dashboard"} />
             <div className="auth-fields">
               <div className="field">
-                <label htmlFor="auth-email">Work or university email</label>
+                <label htmlFor="auth-email">Email address</label>
                 <input id="auth-email" name="email" type="email" autoComplete="email" required maxLength={160} placeholder="name@example.com" />
               </div>
               <div className="field">

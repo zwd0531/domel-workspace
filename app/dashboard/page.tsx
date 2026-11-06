@@ -1,15 +1,16 @@
 import { redirect } from "next/navigation";
 import { DashboardFilters } from "@/components/dashboard/filters";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
+import { DashboardRoleSwitch } from "@/components/dashboard/role-switch";
 import { WorkspaceHeader } from "@/components/workspace-header";
 import { getAuthorizationContext } from "@/server/auth/context";
 import { loadDashboardData } from "@/server/dashboard/data";
-import { resolveDashboardRole } from "@/domain/dashboard/role";
+import { availableDashboardRoles, resolveDashboardRole } from "@/domain/dashboard/role";
 
 export const dynamic = "force-dynamic";
 
 type DashboardPageProps = {
-  searchParams: Promise<{ month?: string; product?: string; record?: string }>;
+  searchParams: Promise<{ month?: string; product?: string; record?: string; role?: string }>;
 };
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
@@ -18,12 +19,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   if (!resolveDashboardRole(auth.roles)) redirect("/access-pending");
 
   const params = await searchParams;
-  const data = await loadDashboardData(auth, { month: params.month, productId: params.product });
+  const data = await loadDashboardData(auth, { month: params.month, productId: params.product, role: params.role });
 
   return (
     <>
-      <WorkspaceHeader displayName={data.displayName} roles={auth.roles} />
-      <DashboardFilters products={data.products} month={data.month} productId={data.productId} />
+      <WorkspaceHeader displayName={data.displayName} roles={auth.roles} dashboardRole={data.role} />
+      <DashboardRoleSwitch availableRoles={availableDashboardRoles(auth.roles)} role={data.role} month={data.month} productId={data.productId} />
+      <DashboardFilters products={data.products} month={data.month} productId={data.productId} role={data.role} />
       <DashboardView data={data} selectedRecord={params.record} />
       <footer className="site-footer"><span>© 2026 · Domel decision workspace</span><span>Server-authorized · Database-backed</span></footer>
     </>

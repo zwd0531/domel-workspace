@@ -1,6 +1,6 @@
 # Authentication bootstrap
 
-The application offers public email-and-password registration. New accounts receive no application role until an Administrator assigns one. See `public-registration.md` for the current signup flow and email settings.
+The application offers public email-and-password registration. Domel public signups automatically receive the three operational roles through migration `0011`; Decision Owner and Administrator remain administrator-assigned. See `public-registration.md` for the current signup flow and email settings.
 
 ## Initial environment
 
@@ -8,7 +8,7 @@ The application offers public email-and-password registration. New accounts rece
 2. Copy `.env.example` to `.env.local` and add the project URL and publishable key.
 3. Apply the SQL migrations in filename order.
 4. Create the first Administrator account through a trusted Supabase administrator surface. Subsequent users can register at `/register`.
-5. The `0002_auth_profile_trigger.sql` migration automatically creates each user's `profiles` row.
+5. The `0002_auth_profile_trigger.sql` migration automatically creates each user's `profiles` row. Migration `0011` also assigns the three operational roles to Domel public signups.
 6. Assign roles from a trusted SQL/admin session.
 
 Example role assignment after the account exists:
@@ -32,7 +32,7 @@ After that first trusted assignment and migration `0007`, Administrators can use
 
 ## Verification checklist
 
-- An account with no role reaches `/access-pending`.
+- A Domel public signup has Sales Coordinator, Production Planner and Quality Engineer roles. A separately created account with no role reaches `/access-pending`.
 - Sales can query `monthly_sales` but receives no production, quality or cost rows.
 - Production Planner can query `monthly_production` but receives no sales, quality or cost rows.
 - Quality Engineer can query `monthly_quality` but receives no sales, production or cost rows.

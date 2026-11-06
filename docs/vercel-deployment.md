@@ -37,6 +37,6 @@ Deploy the imported project, then verify:
 5. One research-agent run returns cited sources and appears in research history.
 6. The `X-Vercel-Id` response header for `/api/health` ends its region chain with `bom1` before the request identifier, confirming that the function runs in Mumbai.
 
-For public registration, configure the Supabase Site URL, confirmation redirect, and custom SMTP described in `public-registration.md`. The built-in mailer cannot confirm users outside the Supabase organization team. Verify a new external email account and assign its role through `/admin` before sharing the registration link widely.
+For public registration, configure the Supabase Site URL and confirmation redirect described in `public-registration.md`. With Confirm email enabled, custom SMTP is required to confirm users outside the Supabase organization team. The no-domain demo mode instead disables Confirm email and automatically assigns the three operational roles through migration `0011`; restore email confirmation and SMTP before a wider rollout.
 
 Keep the first deployment private or share the URL only with intended reviewers until real operational data and role-boundary UAT are approved.

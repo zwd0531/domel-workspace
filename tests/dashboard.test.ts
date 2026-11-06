@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveDashboardRole } from "@/domain/dashboard/role";
+import { availableDashboardRoles, resolveDashboardRole } from "@/domain/dashboard/role";
 import { summarizeDashboard } from "@/domain/dashboard/summary";
 import type { DashboardRow } from "@/domain/dashboard/types";
 
@@ -13,6 +13,9 @@ describe("dashboard authorization and summaries", () => {
     expect(resolveDashboardRole(["sales"])).toBe("sales");
     expect(resolveDashboardRole(["quality_engineer"])).toBe("quality_engineer");
     expect(resolveDashboardRole([])).toBeNull();
+    expect(availableDashboardRoles(["sales", "production_planner", "quality_engineer"])).toEqual(["sales", "production_planner", "quality_engineer"]);
+    expect(resolveDashboardRole(["sales", "production_planner", "quality_engineer"], "quality_engineer")).toBe("quality_engineer");
+    expect(resolveDashboardRole(["sales"], "quality_engineer")).toBe("sales");
   });
 
   it("uses weighted quality rates instead of averaging product percentages", () => {

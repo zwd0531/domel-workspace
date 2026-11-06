@@ -14,6 +14,7 @@ const requiredMigrations = [
   "0008_scenario_ai_analysis.sql",
   "0009_intelligence_research_agent.sql",
   "0010_deepseek_scenario_analysis.sql",
+  "0011_public_registration_default_roles.sql",
 ];
 
 const failures = [];

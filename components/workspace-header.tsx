@@ -4,6 +4,7 @@ import { signOut } from "@/app/actions/auth";
 import { canAny, type AppRole } from "@/domain/permissions/policy";
 import { isDemoMode } from "@/server/demo/config";
 import { LanguageToggle } from "@/components/i18n/language-toggle";
+import type { DashboardRole } from "@/domain/dashboard/types";
 
 const ROLE_LABELS: Record<AppRole, string> = {
   sales: "Sales Coordinator",
@@ -13,21 +14,23 @@ const ROLE_LABELS: Record<AppRole, string> = {
   admin: "Administrator",
 };
 
-function displayRole(roles: AppRole[]) {
-  return roles.includes("admin") ? "admin" : roles.includes("decision_owner") ? "decision_owner" : roles[0] ?? "sales";
+function displayRole(roles: AppRole[], dashboardRole?: DashboardRole) {
+  return roles.includes("admin") ? "admin" : roles.includes("decision_owner") ? "decision_owner" : dashboardRole && roles.includes(dashboardRole) ? dashboardRole : roles[0] ?? "sales";
 }
 
 export function WorkspaceHeader({
   displayName,
   roles,
   active = "dashboard",
+  dashboardRole,
 }: {
   displayName: string;
   roles: AppRole[];
   active?: "dashboard" | "scenarios" | "intelligence" | "admin";
+  dashboardRole?: DashboardRole;
 }) {
   const demoMode = isDemoMode();
-  const role = displayRole(roles);
+  const role = displayRole(roles, dashboardRole);
   const initials = role === "sales" ? "SC" : role === "production_planner" ? "PP" : role === "quality_engineer" ? "QE" : role === "decision_owner" ? "DO" : "AD";
   const scenarioAccess = canAny(roles, "scenario:save");
   const intelligenceAccess = canAny(roles, "evidence:read");

@@ -15,6 +15,7 @@ export function DashboardView({ data, selectedRecord }: { data: DashboardData; s
   const metrics = summarizeDashboard(data.role, data.rows);
   const detail = data.rows.find((row) => row.id === selectedRecord);
   const query = new URLSearchParams({ month: data.month });
+  query.set("role", data.role);
   if (data.productId) query.set("product", data.productId);
 
   return (

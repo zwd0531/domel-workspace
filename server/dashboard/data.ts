@@ -25,9 +25,9 @@ const workItemSchema = z.object({
 
 export async function loadDashboardData(
   auth: AuthorizationContext,
-  filters: { month?: string; productId?: string | null },
+  filters: { month?: string; productId?: string | null; role?: string | null },
 ): Promise<DashboardData> {
-  const role = resolveDashboardRole(auth.roles);
+  const role = resolveDashboardRole(auth.roles, filters.role);
   if (!role) throw new Error("No dashboard role is assigned.");
   if (isDemoMode()) return loadDemoDashboardData(role, filters);
 

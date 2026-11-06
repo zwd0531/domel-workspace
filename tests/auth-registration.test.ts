@@ -46,7 +46,7 @@ describe("public registration", () => {
       email: "test@example.com",
       password: "example-password-123",
       options: {
-        data: { display_name: "Test User" },
+        data: { display_name: "Test User", domel_registration: "public" },
         emailRedirectTo: "https://domel-workspace.vercel.app/login?confirmed=1",
       },
     });
@@ -57,9 +57,9 @@ describe("public registration", () => {
     expect(mocks.signUp).not.toHaveBeenCalled();
   });
 
-  it("sends an immediately authenticated new user to the access-pending page", async () => {
+  it("sends an immediately authenticated new user to the dashboard", async () => {
     mocks.signUp.mockResolvedValue({ data: { user: { id: "new-user" }, session: { access_token: "test" } }, error: null });
-    await expect(signUp(registration())).rejects.toThrow("REDIRECT:/access-pending");
+    await expect(signUp(registration())).rejects.toThrow("REDIRECT:/dashboard");
   });
 
   it("explains when the default mailer rejects an external address", async () => {

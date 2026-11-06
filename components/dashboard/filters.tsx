@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 import type { DashboardProduct } from "@/domain/dashboard/types";
 import { DASHBOARD_MONTHS } from "@/domain/dashboard/constants";
 import { formatDashboardMonth } from "@/domain/dashboard/format";
+import type { DashboardRole } from "@/domain/dashboard/types";
 
-export function DashboardFilters({ products, month, productId }: { products: DashboardProduct[]; month: string; productId: string | null }) {
+export function DashboardFilters({ products, month, productId, role }: { products: DashboardProduct[]; month: string; productId: string | null; role: DashboardRole }) {
   const router = useRouter();
 
   function update(key: "month" | "product", value: string) {
     const params = new URLSearchParams();
+    params.set("role", role);
     params.set("month", key === "month" ? value : month);
     const nextProduct = key === "product" ? value : productId ?? "";
     if (nextProduct) params.set("product", nextProduct);

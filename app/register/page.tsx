@@ -33,8 +33,8 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           <AuthTabs active="register" />
           <span className="eyebrow">EMPLOYEE WORKSPACE</span>
           <h2>Create your account</h2>
-          <p className="muted small">Create a Domel account with your email. An administrator will then assign your workspace role.</p>
-          {params.status === "check-email" ? <div className="auth-message ok" role="status"><p>Check your inbox and spam folder for the confirmation link. After confirming, sign in and wait for a role assignment.</p><Link href="/register">Use another email</Link></div> : null}
+          <p className="muted small">Create a Domel account to use the sales, production and quality views. Higher access is assigned by an administrator.</p>
+          {params.status === "check-email" ? <div className="auth-message ok" role="status"><p>Check your inbox and spam folder for the confirmation link. After confirming, sign in to your three operational views.</p><Link href="/register">Use another email</Link></div> : null}
           {errorMessage ? <p className="auth-message error" role="alert">{errorMessage}</p> : null}
           {params.status !== "check-email" ? <form action={signUp}>
             <div className="auth-fields">
@@ -45,7 +45,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
             </div>
             <button className="btn primary full auth-submit" type="submit">Create account →</button>
           </form> : null}
-          <p className="auth-note">Your account is created in Supabase Auth. Application access begins after an administrator assigns your role.</p>
+          <p className="auth-note">Registration creates a real Supabase Auth account with Sales Coordinator, Production Planner and Quality Engineer access. Decision Owner and Administrator roles require an administrator.</p>
         </section>
       </div>
     </main>
