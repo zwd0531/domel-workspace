@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isDemoMode } from "@/server/demo/config";
 
-const PUBLIC_PATHS = new Set(["/login", "/register", "/setup", "/api/health"]);
+const PUBLIC_PATHS = new Set(["/", "/login", "/register", "/setup", "/api/health"]);
 
 export async function updateSession(request: NextRequest) {
   if (isDemoMode()) return NextResponse.next({ request });
