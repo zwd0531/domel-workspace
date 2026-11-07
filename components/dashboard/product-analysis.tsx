@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useLanguage } from "@/components/i18n/language-provider";
 import type { DashboardProduct, DashboardRole, DashboardRow } from "@/domain/dashboard/types";
 import { known, notPassed, outstanding, rate, salesValue } from "@/domain/dashboard/analysis";
@@ -18,10 +19,11 @@ export function ProductAnalysis({ product, row, role, month, salesTotal }: {
   const { locale } = useLanguage();
   const zh = locale === "zh";
   const title = useRef<HTMLHeadingElement>(null);
+  const locationKey = useSearchParams().toString();
   useEffect(() => {
     if (window.location.hash !== "#product-analysis") return;
     scrollToProductAnalysis();
-  }, [product.id, month, role]);
+  }, [product.id, month, role, locationKey]);
 
   const t = (en: string, cn: string) => zh ? cn : en;
   const n = (value: unknown) => known(value) ? new Intl.NumberFormat(zh ? "zh-CN" : "en-GB", { maximumFractionDigits: 2 }).format(value) : "—";
