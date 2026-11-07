@@ -35,7 +35,7 @@ export function DashboardView({ data, selectedRecord }: { data: DashboardData; s
 }
 
 function Kpi({ metric }: { metric: DashboardMetric }) {
-  const value = metric.kind === "money" ? new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(metric.value) : metric.kind === "percent" ? `${metric.value.toFixed(1)}%` : new Intl.NumberFormat("en-GB").format(metric.value);
+  const value = metric.value === null ? "—" : metric.kind === "money" ? new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(metric.value) : metric.kind === "percent" ? `${metric.value.toFixed(1)}%` : new Intl.NumberFormat("en-GB").format(metric.value);
   return <article className="kpi"><div className="kpi-top">{metric.label}<span>◌</span></div><div className="kpi-value">{value}</div><div className="kpi-foot">Current filtered reporting scope</div></article>;
 }
 

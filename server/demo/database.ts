@@ -14,6 +14,7 @@ import type { ScenarioInputs } from "@/domain/scenario/types";
 import type { ScenarioWorkspaceData } from "@/domain/scenario/workspace";
 import type { IntelligenceResearchResult } from "@/domain/intelligence/research";
 import { DEMO_USER_ID } from "@/server/demo/config";
+import { salesTotalsByCurrency } from "@/domain/dashboard/analysis";
 
 const DEMO_DISPLAY_NAME = "Domel Demo Administrator";
 const DEMO_ROLES: AppRole[] = ["production_planner", "quality_engineer", "decision_owner", "admin"];
@@ -124,13 +125,13 @@ export function loadDemoDashboardData(role: DashboardRole, filters: { month?: st
   const db = getDatabase();
   const month = filters.month === "2026-09" ? "2026-09" : "2026-10";
   const products = db.prepare("select * from products order by name").all().map((row) => mapProduct(row as ProductRow));
-  const productId = products.some((item) => item.id === filters.productId) ? filters.productId! : null;
-  const facts = productId
-    ? db.prepare("select p.*, f.* from products p join monthly_facts f on f.product_id=p.id where p.id=?").all(productId)
-    : db.prepare("select p.*, f.* from products p join monthly_facts f on f.product_id=p.id order by p.name").all();
+  const productId = filters.productId || null;
+  const selectedProduct = products.find((item) => item.id === productId) ?? null;
+  const productSelectionInvalid = Boolean(productId && !selectedProduct);
+  const facts = db.prepare("select p.*, f.* from products p join monthly_facts f on f.product_id=p.id where f.month=? order by p.name").all(`${month}-01`);
   const rows: DashboardRow[] = facts.map((raw) => {
     const row = raw as ProductFactRow;
-    const base = { ...mapProduct(row), month };
+    const base = { ...mapProduct(row), month: row.month.slice(0, 7) };
     if (role === "sales") return { ...base, orderCount: row.order_count, shippedUnits: row.shipped_units, unitPrice: row.unit_price, currency: "EUR" };
     if (role === "production_planner") return { ...base, plannedUnits: row.planned_units, producedUnits: row.produced_units, onTimeRate: row.on_time_rate };
     return { ...base, testedUnits: row.tested_units, passedUnits: row.passed_units, fieldReturns: row.field_returns, defectRate: row.defect_rate, risk: row.risk, qualityNote: row.quality_note };
@@ -139,7 +140,7 @@ export function loadDemoDashboardData(role: DashboardRole, filters: { month?: st
     const row = raw as WorkItemRow;
     return { id: row.id, productId: row.product_id, title: row.title, action: row.action, priority: row.priority, dueAt: row.due_at, status: row.status } satisfies WorkItem;
   });
-  return { role, displayName: DEMO_DISPLAY_NAME, products, rows, workItems, month, productId };
+  return { role, displayName: DEMO_DISPLAY_NAME, products, rows: productSelectionInvalid ? [] : productId ? rows.filter(row => row.id === productId) : rows, workItems, month, productId, selectedProduct, productSelectionInvalid, salesTotals: role === "sales" ? salesTotalsByCurrency(rows) : {} };
 }
 
 export function toggleDemoWorkItem(id: string) {
@@ -243,7 +244,7 @@ function mapIntelligenceEvidence(row: EvidenceRow): IntelligenceEvidence {
 }
 
 type ProductRow = { id: string; code: string; name: string; family: string; application: string; owner_label: string | null };
-type ProductFactRow = ProductRow & { order_count: number; shipped_units: number; unit_price: number; planned_units: number; produced_units: number; on_time_rate: number | null; tested_units: number; passed_units: number; field_returns: number; defect_rate: number | null; risk: "Low" | "Medium" | "High"; quality_note: string | null; variable_cost: number; fixed_cost: number };
+type ProductFactRow = ProductRow & { month: string; order_count: number; shipped_units: number; unit_price: number; planned_units: number; produced_units: number; on_time_rate: number | null; tested_units: number; passed_units: number; field_returns: number; defect_rate: number | null; risk: "Low" | "Medium" | "High"; quality_note: string | null; variable_cost: number; fixed_cost: number };
 type WorkItemRow = { id: string; product_id: string | null; title: string; action: string; priority: "Low" | "Medium" | "High"; due_at: string | null; status: "open" | "completed" | "cancelled" };
 type EvidenceRow = { id: string; title: string; publisher: string; source_url: string; published_on: string | null; captured_on: string; topic: IntelligenceEvidence["topic"]; fact: string; interpretation: string; limitations: string; verification_status: IntelligenceEvidence["verificationStatus"]; review_note: string; reviewed_at: string | null; linked_count?: number };
 type ScenarioRow = { id: string; product_id: string; business_month: string; owner_id: string; name: string; status: "draft" | "submitted" | "approved" | "rejected" | "archived"; version: number; updated_at: string };

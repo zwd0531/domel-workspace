@@ -6,6 +6,7 @@ import { DASHBOARD_MONTHS } from "@/domain/dashboard/constants";
 import { resolveDashboardRole } from "@/domain/dashboard/role";
 import { isDemoMode } from "@/server/demo/config";
 import { loadDemoDashboardData } from "@/server/demo/database";
+import { salesTotalsByCurrency } from "@/domain/dashboard/analysis";
 
 const productSchema = z.object({
   id: z.string(), code: z.string(), name: z.string(), family: z.string(), application: z.string(), owner_label: z.string().nullable(),
@@ -49,7 +50,9 @@ export async function loadDashboardData(
     id: product.id, code: product.code, name: product.name, family: product.family,
     application: product.application, ownerLabel: product.owner_label,
   }));
-  const validProductId = products.some((product) => product.id === filters.productId) ? filters.productId! : null;
+  const selectedProduct = products.find((product) => product.id === filters.productId) ?? null;
+  const productId = filters.productId || null;
+  const productSelectionInvalid = Boolean(productId && !selectedProduct);
 
   const factTable = role === "sales" ? "monthly_sales" : role === "production_planner" ? "monthly_production" : "monthly_quality";
   const factFields = role === "sales"
@@ -59,7 +62,7 @@ export async function loadDashboardData(
       : "product_id,month,tested_units,passed_units,field_returns,defect_rate,risk,quality_note";
 
   let factQuery = supabase.from(factTable).select(factFields).eq("month", databaseMonth);
-  if (validProductId) factQuery = factQuery.eq("product_id", validProductId);
+  if (selectedProduct && role !== "sales") factQuery = factQuery.eq("product_id", selectedProduct.id);
 
   const factResult = await factQuery;
 
@@ -88,12 +91,15 @@ export async function loadDashboardData(
     role,
     displayName: String(profileResult.data.display_name),
     products,
-    rows,
+    rows: productSelectionInvalid ? [] : productId ? rows.filter(row => row.id === productId) : rows,
     workItems: z.array(workItemSchema).parse(workResult.data).map((item) => ({
       id: item.id, productId: item.product_id, title: item.title, action: item.action,
       priority: item.priority, dueAt: item.due_at, status: item.status,
     })),
     month,
-    productId: validProductId,
+    productId,
+    selectedProduct,
+    productSelectionInvalid,
+    salesTotals: role === "sales" ? salesTotalsByCurrency(rows) : {},
   };
 }

@@ -46,4 +46,7 @@ export type DashboardData = {
   workItems: WorkItem[];
   month: string;
   productId: string | null;
+  selectedProduct: DashboardProduct | null;
+  productSelectionInvalid: boolean;
+  salesTotals: Record<string, number | null>;
 };
