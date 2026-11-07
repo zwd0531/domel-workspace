@@ -99,6 +99,48 @@ code { padding: 2px 5px; border-radius: 4px; background: var(--pale); }
 .scope-bar { display: flex; padding: 16px 4%; align-items: center; gap: 15px; border-bottom: 1px solid var(--line); background: #fff; }
 .dashboard-role-switch { display: flex; padding: 12px 4%; align-items: center; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid var(--line); background: #fff; }
 .dashboard-role-switch > span { margin-right: 4px; }
+.scope-bar .product-filter { max-width: 380px; flex: 2; }
+.selected-product-bar { display: flex; margin: 18px 0; padding: 14px 16px; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.dashboard-empty { margin-bottom: 20px; }
+.product-analysis { margin-top: 26px; scroll-margin-top: 24px; }
+.product-analysis h2 { margin: 7px 0; scroll-margin-top: 24px; }
+.product-analysis h2:focus { outline: none; }
+.product-analysis h3 { margin: 26px 0 14px; color: var(--navy); font-size: 15px; }
+.analysis-heading { align-items: flex-start; gap: 18px; flex-wrap: wrap; }
+.analysis-heading p { margin: 8px 0; }
+.analysis-metrics { display: grid; margin: 0; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 12px; }
+.analysis-metrics > div { padding: 16px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); }
+.analysis-metrics dt { color: var(--muted); font-size: 12px; }
+.analysis-metrics dd { margin: 8px 0 0; color: var(--navy); font-size: 23px; font-weight: 650; overflow-wrap: anywhere; }
+.sales-equation { display: flex; padding: 20px; align-items: center; justify-content: center; gap: 22px; flex-wrap: wrap; border-radius: 8px; background: var(--pale); }
+.sales-equation span { color: var(--navy); font-size: 22px; font-weight: 650; text-align: center; }
+.sales-equation small { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; font-weight: 400; }
+.sales-equation b { color: var(--blue); font-size: 25px; }
+.sales-share { display: flex; margin: 22px 0; align-items: center; gap: 24px; flex-wrap: wrap; }
+.share-ring { display: grid; width: 140px; height: 140px; flex: none; place-items: center; border-radius: 50%; }
+.share-ring strong { display: grid; width: 108px; height: 108px; place-items: center; border-radius: 50%; background: #fff; color: var(--navy); font-size: 24px; }
+.sales-share figcaption { flex: 1; min-width: 190px; }
+.sales-share p { color: var(--muted); font-size: 12px; }
+.analysis-bars { margin: 18px 0; }
+.analysis-bars figcaption { margin-bottom: 16px; color: var(--muted); font-size: 12px; }
+.analysis-bar-row { margin: 16px 0; }
+.analysis-bar-row .row { margin-bottom: 7px; font-size: 12px; }
+.analysis-bar-track { height: 22px; overflow: hidden; border-radius: 4px; background: #edf1f5; }
+.analysis-bar-track span { display: block; height: 100%; background: #7893ad; }
+.analysis-bar-track span.secondary { background: var(--blue); }
+.analysis-reading { padding: 1px 18px 12px; border-left: 3px solid var(--blue); background: var(--pale); }
+.analysis-reading p { line-height: 1.85; }
+.quality-record-note { padding-top: 4px; }
+.quality-record-note p { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .scope-bar .product-filter { flex: 1 1 100%; max-width: none; }
+  .selected-product-bar { align-items: flex-start; flex-direction: column; }
+  .analysis-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .analysis-metrics dd { font-size: 20px; }
+  .product-analysis { padding: 18px; }
+  .sales-equation { gap: 12px; padding: 16px 10px; }
+  .sales-equation span { font-size: 17px; }
+}
 .scope-lead { min-width: 110px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 1px; }
 .scope-bar .field { flex: 1; max-width: 225px; }
 .scope-bar label { color: var(--muted); font-size: 9px; letter-spacing: .8px; text-transform: uppercase; }
