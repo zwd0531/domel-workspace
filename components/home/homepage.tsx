@@ -86,7 +86,7 @@ export function Homepage() {
     <main className="landing-page" data-no-translate>
       <header className="landing-header">
         <Link className="landing-brand" href="/" aria-label={content.brand}>
-          <Image src="/domel-logo.png" alt="Domel" width={1800} height={578} sizes="(max-width: 680px) 108px, 132px" priority />
+          <Image src="/domel-logo.svg" alt="Domel" width={346} height={116} sizes="(max-width: 680px) 108px, 132px" priority />
           <span>Workspace</span>
         </Link>
         <div className="landing-header-meta">

@@ -38,7 +38,7 @@ export function WorkspaceHeader({
   return (
     <header className="site-header">
       <Link className="brand" href="/dashboard" aria-label="Domel Decision Workspace">
-        <Image className="brand-logo" src="/domel-logo.png" alt="Domel" width={1800} height={578} priority />
+        <Image className="brand-logo" src="/domel-logo.svg" alt="Domel" width={346} height={116} priority />
       </Link>
       <nav aria-label="Main navigation">
         <Link aria-current={active === "dashboard" ? "page" : undefined} href="/dashboard">▦ Business Dashboard</Link>

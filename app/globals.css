@@ -59,9 +59,8 @@ input:disabled, select:disabled, textarea:disabled, button:disabled { cursor: no
 .panel-head p { color: var(--muted); font-size: 11px; }
 .status-card { max-width: 920px; margin: 32px auto; padding: 32px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 .loading-brand { display: flex; min-height: 48px; margin-top: 22px; align-items: center; gap: 14px; }
-.loading-brand-icon { display: block; width: 48px; height: 48px; flex: none; background: url("/domel-logo.png") left center / auto 48px no-repeat; }
-.loading-brand-word { display: inline-flex; min-height: 48px; align-items: center; gap: 1px; color: #111126; font-family: Arial, sans-serif; font-size: 29px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
-.loading-brand-letter { display: inline-block; transform-origin: center bottom; animation: domel-loading-letter 1.5s ease-in-out infinite; }
+.loading-brand-word { display: inline-flex; width: calc(48px * 345.8268 / 116.2205); height: 48px; align-items: center; }
+.loading-brand-letter { display: block; height: 100%; flex: none; overflow: hidden; transform-origin: center bottom; animation: domel-loading-letter 1.5s ease-in-out infinite; }
 @keyframes domel-loading-letter {
   0%, 45%, 100% { transform: scale(1); }
   20% { transform: scale(1.3); }

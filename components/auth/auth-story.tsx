@@ -3,7 +3,7 @@ import Image from "next/image";
 export function AuthStory() {
   return (
     <section className="login-story">
-      <Image className="login-brand-logo" src="/domel-logo.png" alt="Domel" width={1800} height={578} priority />
+      <Image className="login-brand-logo" src="/domel-logo.svg" alt="Domel" width={346} height={116} priority />
       <span className="eyebrow">DOMEL SUZHOU · EMPLOYEE WORKSPACE</span>
       <h1>One workspace.<br />Three employee views.</h1>
       <p className="lead">Explore the same household vacuum product records through the information each role needs.</p>
