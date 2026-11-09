@@ -1,78 +1,143 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { LanguageToggle } from "@/components/i18n/language-toggle";
 
-const capabilities = [
-  {
-    number: "01",
-    title: "Role-based dashboard",
-    text: "Give sales, production, and quality teams the metrics that matter to their work.",
-    accent: "blue",
+const copy = {
+  en: {
+    brand: "Domel Workspace home",
+    eyebrow: "DOMEL WORKSPACE · DECISION SUPPORT",
+    headline: "Turn business data into",
+    highlight: "clearer operational decisions.",
+    problem: "Scattered sales, production and quality information makes it hard to compare options and agree on the next step.",
+    action: "Open workspace",
+    accountNote: "Log in or create an account to continue.",
+    publicNote: "Explore this page without an account.",
+    previewLabel: "Overview of the three workspace tools",
+    previewHeading: "One workspace.",
+    previewSubheading: "Three decision tools.",
+    dashboard: "Business Dashboard",
+    dashboardNote: "Understand your product",
+    intelligence: "Industry Intelligence",
+    intelligenceNote: "Review evidence and sources",
+    scenarios: "Scenario Planning",
+    scenariosNote: "Compare your assumptions",
+    from: "FROM DATA",
+    to: "TO DECISIONS",
+    stepsEyebrow: "A SIMPLE WORKFLOW",
+    stepsTitle: "How it works",
+    steps: [
+      { title: "Review your product", text: "Choose your role, product and month to see the business data relevant to your work." },
+      { title: "Gather industry evidence", text: "Research a business question and review the sources behind the industry signals." },
+      { title: "Compare scenarios", text: "Adjust assumptions, compare outcomes and use AI feedback to review your analysis." },
+    ],
+    teamEyebrow: "THE PROJECT TEAM",
+    teamTitle: "Who we are",
+    teamLines: [
+      "We are the project team behind Domel Workspace.",
+      "We build decision-support tools for the Domel Suzhou operations case.",
+    ],
+    footer: "Project prototype · Domel Suzhou case",
   },
-  {
-    number: "02",
-    title: "Scenario planning",
-    text: "Adjust demand, price, cost, and capacity assumptions to compare possible outcomes.",
-    accent: "orange",
+  zh: {
+    brand: "Domel Workspace 首页",
+    eyebrow: "DOMEL WORKSPACE · 决策支持",
+    headline: "让业务数据帮助你",
+    highlight: "做出更清晰的运营决策。",
+    problem: "销售、生产和质量信息分散，导致团队难以比较方案、确定下一步行动。",
+    action: "进入工作台",
+    accountNote: "登录或创建账号后即可继续。",
+    publicNote: "无需账号，即可浏览本页。",
+    previewLabel: "工作台三项工具概览",
+    previewHeading: "一个工作台，",
+    previewSubheading: "三项决策工具。",
+    dashboard: "业务看板",
+    dashboardNote: "了解产品的业务表现",
+    intelligence: "行业情报",
+    intelligenceNote: "查看证据与信息来源",
+    scenarios: "场景规划",
+    scenariosNote: "比较不同假设的结果",
+    from: "从业务数据",
+    to: "到清晰决策",
+    stepsEyebrow: "简单三步",
+    stepsTitle: "如何使用",
+    steps: [
+      { title: "查看产品表现", text: "选择岗位、产品和月份，查看与你的工作相关的业务数据。" },
+      { title: "收集行业证据", text: "围绕业务问题搜索行业信息，查看相关信号及其来源。" },
+      { title: "比较场景方案", text: "调整假设、比较结果，并借助 AI 反馈检查自己的分析。" },
+    ],
+    teamEyebrow: "项目团队",
+    teamTitle: "我们是谁",
+    teamLines: [
+      "我们是 Domel Workspace 项目的开发团队。",
+      "我们围绕 Domel 苏州运营案例，开发帮助团队理解数据、比较方案的决策支持工具。",
+    ],
+    footer: "项目原型 · Domel 苏州运营案例",
   },
-  {
-    number: "03",
-    title: "Industry intelligence",
-    text: "Organise external information around business questions and connect signals to decisions.",
-    accent: "green",
-  },
-];
+};
 
 export function Homepage() {
+  const { locale } = useLanguage();
+  const content = copy[locale];
+
   return (
-    <main className="landing-page">
+    <main className="landing-page" data-no-translate>
       <header className="landing-header">
-        <Link className="landing-brand" href="/" aria-label="Domel Workspace 首页">
-          <Image src="/domel-logo.png" alt="Domel" width={1800} height={578} priority />
+        <Link className="landing-brand" href="/" aria-label={content.brand}>
+          <Image src="/domel-logo.png" alt="Domel" width={1800} height={578} sizes="(max-width: 680px) 108px, 132px" priority />
           <span>Workspace</span>
         </Link>
         <div className="landing-header-meta">
           <span className="landing-status"><i aria-hidden="true" /> Domel Suzhou</span>
-          <Link className="landing-login-link" href="/login">Log in <span aria-hidden="true">↗</span></Link>
+          <LanguageToggle />
         </div>
       </header>
 
       <section className="landing-hero" aria-labelledby="landing-title">
         <div className="landing-hero-copy">
-          <p className="landing-eyebrow"><span aria-hidden="true" /> DOMEL SUZHOU · DECISION WORKSPACE</p>
-          <h1 id="landing-title">Turn insight into<br /><em>clearer action.</em></h1>
-          <p className="landing-lead">Domel Workspace brings dashboards, scenario planning, and industry intelligence into one focused space for faster, better-informed decisions.</p>
+          <p className="landing-eyebrow">{content.eyebrow}</p>
+          <h1 id="landing-title">{content.headline} <em>{content.highlight}</em></h1>
+          <p className="landing-lead">{content.problem}</p>
           <div className="landing-actions">
-            <Link className="landing-primary" href="/login">Open workspace <span aria-hidden="true">→</span></Link>
-            <a className="landing-secondary" href="#capabilities">Explore capabilities <span aria-hidden="true">↓</span></a>
+            <Link className="landing-primary" href="/login">{content.action} <span aria-hidden="true">→</span></Link>
           </div>
-          <p className="landing-note"><span aria-hidden="true">i</span> Internal decision support for Domel Suzhou operations</p>
+          <p className="landing-account-note">{content.accountNote}</p>
+          <p className="landing-note">{content.publicNote}</p>
         </div>
 
-        <div className="landing-visual" aria-label="Domel Workspace 三项核心能力概览">
-          <div className="visual-topline"><span>DOMEL WORKSPACE</span><span>2026 / SUZHOU</span></div>
-          <div className="visual-heading">One workspace.<br /><strong>Three decision views.</strong></div>
+        <div className="landing-visual" role="group" aria-label={content.previewLabel}>
+          <div className="visual-topline"><span>DOMEL WORKSPACE</span><span>SUZHOU</span></div>
+          <div className="visual-heading">{content.previewHeading}<br /><strong>{content.previewSubheading}</strong></div>
           <div className="visual-grid">
-            <div className="visual-card visual-card-large"><span className="visual-index">01</span><strong>Business<br />Dashboard</strong><div className="visual-bars"><i /><i /><i /></div><small>Role-based overview</small></div>
-            <div className="visual-card visual-card-orange"><span className="visual-index">02</span><strong>Scenario<br />Planning</strong><small>Compare possible outcomes</small></div>
-            <div className="visual-card visual-card-outline"><span className="visual-index">03</span><strong>Industry<br />Intelligence</strong><small>Connect external signals</small></div>
+            <div className="visual-card visual-card-large"><span className="visual-index">01</span><strong>{content.dashboard}</strong><div className="visual-bars" aria-hidden="true"><i /><i /><i /></div><small>{content.dashboardNote}</small></div>
+            <div className="visual-card visual-card-orange"><span className="visual-index">02</span><strong>{content.intelligence}</strong><small>{content.intelligenceNote}</small></div>
+            <div className="visual-card visual-card-outline"><span className="visual-index">03</span><strong>{content.scenarios}</strong><small>{content.scenariosNote}</small></div>
           </div>
-          <div className="visual-footer"><span>FROM DATA</span><b aria-hidden="true">→</b><span>TO DECISIONS</span></div>
+          <div className="visual-footer"><span>{content.from}</span><b aria-hidden="true">→</b><span>{content.to}</span></div>
         </div>
       </section>
 
-      <section className="landing-capabilities" id="capabilities" aria-labelledby="capabilities-title">
-        <div className="section-heading"><div><p className="landing-eyebrow">核心能力</p><h2 id="capabilities-title">A clearer way to<br />make every decision.</h2></div><p>From business visibility to scenario comparison and external signals, every step stays clear, traceable, and actionable.</p></div>
-        <div className="capability-grid">
-          {capabilities.map((capability) => <article className={`capability-card ${capability.accent}`} key={capability.number}><span className="capability-number">{capability.number}</span><h3>{capability.title}</h3><p>{capability.text}</p><span className="capability-arrow" aria-hidden="true">↗</span></article>)}
-        </div>
+      <section className="landing-how" aria-labelledby="how-it-works-title">
+        <p className="landing-eyebrow">{content.stepsEyebrow}</p>
+        <h2 id="how-it-works-title">{content.stepsTitle}</h2>
+        <ol className="landing-steps">
+          {content.steps.map((step, index) => (
+            <li className="landing-step" key={index}>
+              <span className="landing-step-number" aria-hidden="true">0{index + 1}</span>
+              <div><h3>{step.title}</h3><p>{step.text}</p></div>
+            </li>
+          ))}
+        </ol>
       </section>
 
-      <section className="landing-cta">
-        <div><p className="landing-eyebrow">READY TO EXPLORE?</p><h2>Start with a<br />clearer view.</h2></div>
-        <div className="landing-cta-side"><p>登录后，系统会根据你的岗位展示对应的业务信息与工作内容。</p><Link className="landing-primary" href="/login">登录 Domel Workspace <span aria-hidden="true">→</span></Link></div>
+      <section className="landing-team" aria-labelledby="team-title">
+        <div><p className="landing-eyebrow">{content.teamEyebrow}</p><h2 id="team-title">{content.teamTitle}</h2></div>
+        <div className="landing-team-copy">{content.teamLines.map((line, index) => <p key={index}>{line}</p>)}</div>
       </section>
 
-      <footer className="landing-footer"><span>© 2026 Domel Workspace</span><span>内部决策支持空间 · 苏州运营</span></footer>
+      <footer className="landing-footer"><span>© 2026 Domel Workspace</span><span>{content.footer}</span></footer>
     </main>
   );
 }
