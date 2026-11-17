@@ -1,6 +1,6 @@
 # Authentication bootstrap
 
-The application offers public email-and-password registration. Domel public signups automatically receive the three operational roles through migration `0011`; Decision Owner and Administrator remain administrator-assigned. See `public-registration.md` for the current signup flow and email settings.
+The application offers public email-and-password registration. After migration `0012`, new Domel public signups automatically receive all five application roles, including Decision Owner and Administrator. See `public-registration.md` for the current signup flow and email settings.
 
 ## Initial environment
 
@@ -8,7 +8,7 @@ The application offers public email-and-password registration. Domel public sign
 2. Copy `.env.example` to `.env.local` and add the project URL and publishable key.
 3. Apply the SQL migrations in filename order.
 4. Create the first Administrator account through a trusted Supabase administrator surface. Subsequent users can register at `/register`.
-5. The `0002_auth_profile_trigger.sql` migration automatically creates each user's `profiles` row. Migration `0011` also assigns the three operational roles to Domel public signups.
+5. The `0002_auth_profile_trigger.sql` migration automatically creates each user's `profiles` row. Migration `0012` assigns all five roles to new Domel public signups.
 6. Assign roles from a trusted SQL/admin session.
 
 Example role assignment after the account exists:
@@ -26,13 +26,13 @@ Allowed roles are `sales`, `production_planner`, `quality_engineer`, `decision_o
 
 ## Bootstrap rule
 
-The first administrator must be assigned through a trusted database/admin session. Never add a browser endpoint that can promote the current user to `admin`.
+The all-role signup default is configured by migration `0012` in a trusted database/admin session. Without that migration, the first administrator must be assigned through a trusted database/admin session. The registration form does not accept a requested role, and no new browser role-promotion endpoint is added.
 
 After that first trusted assignment and migration `0007`, Administrators can use `/admin` to assign application roles. Every change is written through `set_user_roles`, audited and protected against removing the final active Administrator.
 
 ## Verification checklist
 
-- A Domel public signup has Sales Coordinator, Production Planner and Quality Engineer roles. A separately created account with no role reaches `/access-pending`.
+- A new Domel public signup has all five roles and can open every workspace module. Existing users retain their previous assignments; a separately created account with no role reaches `/access-pending`.
 - Sales can query `monthly_sales` but receives no production, quality or cost rows.
 - Production Planner can query `monthly_production` but receives no sales, quality or cost rows.
 - Quality Engineer can query `monthly_quality` but receives no sales, production or cost rows.

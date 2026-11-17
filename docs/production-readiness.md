@@ -7,13 +7,13 @@ The source project can be built without a database. A production or UAT acceptan
 1. Copy `.env.example` to `.env.local`.
 2. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the target Supabase project. Do not send these values through chat or commit `.env.local`.
 3. Run `pnpm preflight:env`. The script checks presence and shape only and never prints the values.
-4. Apply migrations `0001` through `0011` in filename order.
+4. Apply migrations `0001` through `0012` in filename order. Migration `0012` enables the owner's full-access policy for new public signups; publish the updated registration page after applying it.
 5. Create the first account and assign its `admin` role through the trusted Supabase SQL editor as documented in `auth-bootstrap.md`.
 
 ## Required UAT evidence
 
 - Authentication: successful login, invalid login and sign-out.
-- Public registration: new email account, profile creation, automatic assignment of the three operational roles, dashboard role switching, and continued restriction of Decision Owner and Administrator roles. With email confirmation enabled, also verify the confirmation link.
+- Public registration: new email account, profile creation, automatic assignment of all five roles, dashboard role switching, Scenario Planning and Administration access, sign-out and repeat sign-in. With email confirmation enabled, also verify the confirmation link.
 - Role boundaries: one account for each operational role plus two different decision-authorized accounts.
 - Decision workflow: complete every check in `decision-workflow-uat.md`.
 - Administration: prove non-admin denial for `/admin`, import preview and commit APIs, and role mutation.
